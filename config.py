@@ -1,8 +1,11 @@
+import random
+import string
 class Config(object):
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
-    SECRET_KEY = 'hj67gyu_;,,../ku9inm'
+    SECRET_KEY = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
+
 
 
 class ProductionConfig(Config):
