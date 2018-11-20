@@ -1,17 +1,23 @@
 # app/models/database.py
 
 import psycopg2
-
+from config import app_config
 
 class Database:
 
+
     def __init__(self):
         try:
-            self.conn = psycopg2.connect("dbname=SENDIT user=arthur password=admin host=localhost")
+
+            self.conn = psycopg2.connect("dbname=sendit user=postgres password=postgres host=localhost")
             self.conn.autocommit = True
             self.cur = self.conn.cursor()
+            return self.cur
         except (Exception, psycopg2.Error) as e:
-            print(e)
+            return e
+
+
+
 
     def create_tables(self):
         """Creates tables in the database"""
@@ -22,7 +28,7 @@ class Database:
                 firstName varchar(25),
                 lastName varchar(25),
                 password varchar(255),
-                registered_on timestamp);""",
+                email varchar (150));""",
             """CREATE TABLE IF NOT EXISTS parcels
             (
                 order_id serial,
@@ -44,3 +50,4 @@ class Database:
         sql_queries = ('Truncate users', 'Truncate parcels')
         for query in sql_queries:
             self.cur.execute(query)
+
