@@ -2,7 +2,7 @@ from flask import Flask
 
 from config import app_config
 
-from app.routes.users import users_bp
+from app.views.users import users_bp
 
 
 def create_app(config_name):

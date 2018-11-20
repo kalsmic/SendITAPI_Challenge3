@@ -1,6 +1,8 @@
 # users.py
 """File contains routes for user end point"""
 
+import re
+
 from flask import (
     Blueprint,
     jsonify,
@@ -9,7 +11,6 @@ from flask import (
 )
 
 from app.models.user import User
-from app.validation import validate_email
 
 users_bp = Blueprint('users_bp', __name__, url_prefix='/api/v2')
 
@@ -33,6 +34,12 @@ def register():
         # check if field is empty
         if not value:
             return jsonify({'Message': "{} cannot be empty".format(key)}), 400
+
+
+    if not re.match('[^@]+@[^@]+\.[^@]+', new_user['email']):
+        return jsonify({'Message': "Invalid email"}), 400
+
+
 
     # validate email - to be worked on
     # if not validate_email(new_user['email']):

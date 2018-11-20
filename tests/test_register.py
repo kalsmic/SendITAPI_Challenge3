@@ -16,11 +16,11 @@ user_with_complete_data = {
     "password": "passswrd"
 
 }
-user_with_wrong_email_data = {
-    "username": "micheal",
-    "firstname": "Arhtur",
-    "lastname": "kalule",
-    "email": "shjgmail.com",
+user_with_invalid_email_data = {
+    "username": "john",
+    "firstname": "Jonathan",
+    "lastname": "Davis",
+    "email": "jhdfdfmail.com",
     "password": "passswrd"
 
 }
@@ -38,14 +38,14 @@ def test_register_user(test_client):
             create_user_with_missing_data:
         assert create_user_with_missing_data.status_code == 400
         data = json.loads(create_user_with_missing_data.data.decode())
-        assert data == { "message": "username cannot be empty"}
+        assert data == { "Message": "username cannot be empty"}
 
     # Tests register a user with wrong email
-    with test_client.post('/api/v2/auth/register', data=json.dumps(user_with_wrong_email_data), headers=headers) as \
+    with test_client.post('/api/v2/auth/register', data=json.dumps(user_with_invalid_email_data), headers=headers) as \
             create_user_with_wrong_email:
-        assert create_user_with_wrong_email.status_code == 200
+        assert create_user_with_wrong_email.status_code == 400
         data = json.loads(create_user_with_wrong_email.data.decode())
-        assert data == {"success": "Registered Succesfully " }
+        assert data == {"Message": "Invalid email"}
 
     # Test register  valid credentials
     with test_client.post('/api/v2/auth/register', data=json.dumps(user_with_complete_data), headers=headers) as \
