@@ -1,7 +1,7 @@
 # app/models/database.py
 
 import psycopg2
-import psycopg2.extras as PG_EXTRAS
+from psycopg2.extras import RealDictCursor
 from config import app_config
 
 
@@ -14,7 +14,7 @@ class Database:
             DATABASE_URL = "postgres://postgres:postgres@localhost:5432/sendit"
             self.conn = psycopg2.connect(DATABASE_URL)
             self.conn.autocommit = True
-            self.cur = self.conn.cursor(cursor_factory=PG_EXTRAS.RealDictCursor)
+            self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
         except (Exception, psycopg2.Error) as e:
             print(e)
 

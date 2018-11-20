@@ -1,12 +1,16 @@
-from flask import jsonify
+import random
+import string
 
-from .database import Database
-from  werkzeug.security import (
+from flask import jsonify
+from werkzeug.security import (
     generate_password_hash,
     check_password_hash
 )
 
+from .database import Database
 
+# generates an alpha numeric string of 32
+secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
 
 
 class User:
@@ -33,12 +37,7 @@ class User:
                                  .format(username))
 
         user = self.connect.cur.fetchone()
-        # If username exists
-        if user:
-        #     verify password
-            if check_password_hash(user['password'],password):
-                # password is correct
-                return True
-        # wrong username or password
+        # If username exists and has provided a valid password
+        if user and check_password_hash(user['password'], password):
+            return True
         return False
-

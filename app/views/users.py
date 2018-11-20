@@ -9,6 +9,9 @@ from flask import (
     request,
     json
 )
+from flask_jwt_extended import (
+    create_access_token
+)
 
 from app.models.user import User
 
@@ -59,6 +62,7 @@ def login():
             username(type - string)
             password(type - string)
     """
+
     data = request.data
     credentials = json.loads(data)
 
@@ -68,11 +72,12 @@ def login():
         if not value:
             return jsonify({'Message': "{} cannot be empty".format(key)}), 400
 
-
     # Submit valid data
-    verify_user=user_obj.login_user(username=credentials['username'],password=credentials['password'])
+    verify_user = user_obj.login_user(username=credentials['username'], password=credentials['password'])
     if verify_user:
-        return jsonify({"success":"logged in successfully"}),200
-    # wrong user name or password
-    return jsonify({"message":"Inalid credentials"}),400
+        # create access token
+        access_token = create_access_token(identity=credentials['username'])
 
+        return jsonify({"access_token": access_token}), 200
+    # wrong user name or password
+    return jsonify({"message": "Invalid credentials"}), 400
