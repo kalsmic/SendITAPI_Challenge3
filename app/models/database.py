@@ -1,7 +1,9 @@
 # app/models/database.py
 
 import psycopg2
+import psycopg2.extras as PG_EXTRAS
 from config import app_config
+
 
 class Database:
 
@@ -9,12 +11,12 @@ class Database:
     def __init__(self):
         try:
 
-            self.conn = psycopg2.connect("dbname=sendit user=postgres password=postgres host=localhost")
+            DATABASE_URL = "postgres://postgres:postgres@localhost:5432/sendit"
+            self.conn = psycopg2.connect(DATABASE_URL)
             self.conn.autocommit = True
-            self.cur = self.conn.cursor()
-            return self.cur
+            self.cur = self.conn.cursor(cursor_factory=PG_EXTRAS.RealDictCursor)
         except (Exception, psycopg2.Error) as e:
-            return e
+            print(e)
 
 
 

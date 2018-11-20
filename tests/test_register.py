@@ -9,11 +9,11 @@ user_with_missing_data = {
 
 }
 user_with_complete_data = {
-    "username": "micheal",
+    "username": "admin",
     "firstname": "Arhtur",
     "lastname": "kalule",
     "email": "kalulearthur@gmail.com",
-    "password": "passswrd"
+    "password": "password"
 
 }
 user_with_invalid_email_data = {
