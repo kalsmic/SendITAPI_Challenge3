@@ -14,6 +14,8 @@ from app.models.user import User
 
 users_bp = Blueprint('users_bp', __name__, url_prefix='/api/v2')
 
+user_obj = User()
+
 
 @users_bp.route('/auth/register', methods=['POST'])
 def register():
@@ -35,11 +37,8 @@ def register():
         if not value:
             return jsonify({'Message': "{} cannot be empty".format(key)}), 400
 
-
     if not re.match('[^@]+@[^@]+\.[^@]+', new_user['email']):
         return jsonify({'Message': "Invalid email"}), 400
-
-
 
     # validate email - to be worked on
     # if not validate_email(new_user['email']):
@@ -52,4 +51,28 @@ def register():
                           email=new_user['email'],
                           password=new_user['password']
                           )
+
+
+@users_bp.route('/auth/login', methods=['POST'])
+def login():
+    """Expects Parameters:
+            username(type - string)
+            password(type - string)
+    """
+    data = request.data
+    credentials = json.loads(data)
+
+    # Traverse through the new_user input data
+    for key, value in credentials.items():
+        # check if field is empty
+        if not value:
+            return jsonify({'Message': "{} cannot be empty".format(key)}), 400
+
+
+    # Submit valid data
+    verify_user=user_obj.login_user(username=credentials['username'],password=credentials['password'])
+    if verify_user:
+        return jsonify({"success":"logged in successfully"}),200
+    # wrong user name or password
+    return jsonify({"message":"Inalid credentials"}),400
 
