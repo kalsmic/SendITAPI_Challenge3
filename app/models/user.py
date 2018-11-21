@@ -45,7 +45,7 @@ class User:
         user = self.connect.cur.fetchone()
         # If username exists and has provided a valid password
         if user and check_password_hash(user['password'], password):
-            return {'status': 'success', "is_admin": user['is_admin'], 'userId': user['userId']}
+            return {'status': 'success', "is_admin": user['is_admin'], 'user_id': user['user_id']}
         return {'status': 'Failed'}
 
 

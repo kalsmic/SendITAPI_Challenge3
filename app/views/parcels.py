@@ -23,27 +23,32 @@ def get_all_parcels():
     return jsonify({'parcels': parcels_obj.parcel_details()}), 200
 
 #
-# @parcels_bp.route('/parcels/<parcelId>', methods=['GET'])
-# def get_a_parcel(parcelId):
-#     """Parameter: int parcelId
-#     :returns:
-#         404 error If parcelId is not an integer or does not exist
-#         200 success if parcelId exists"""
-#
-#     # cast parcelId to int
-#     try:
-#         parcelId = int(parcelId)
-#     #     if parcel id is not an integer
-#     except ValueError:
-#         return jsonify(Bad_request), 400
-#
-#     # Avoids returning the last item if parcel id of zero is given
-#     """checks if parcel id exists"""
-#     if parcelId not in parcel_id_table.keys():
-#         return jsonify(Bad_request), 400
-#
-#     # returns parcel with valid parcel id
-#     return jsonify({'parcel': parcelOrders[parcelId - 1].parcel_details()}), 200
+@parcels_bp.route('/parcels/<parcelId>', methods=['GET'])
+@jwt_required
+# @non_admin
+def get_a_parcel(parcelId):
+    """Parameter: int parcelId
+    :returns:
+        404 error If parcelId is not an integer or does not exist
+        200 success if parcelId exists"""
+
+    # cast parcelId to int
+    try:
+        parcelId = int(parcelId)
+    #     if parcel id is not an integer
+    except ValueError:
+        return jsonify({"message":"Bad Request"}), 400
+
+    # Avoids returning the last item if parcel id of zero is given
+    """checks if parcel id exists"""
+    parcels_obj.connect.cur.execute("SELECT * FROM parcels where parcel_id = '%s'",(parcelId,))
+
+    # returns parcel with valid parcel id
+    if parcels_obj.connect.cur.rowcount >0:
+        parcel_order=parcels_obj.connect.cur.fetchone()
+
+        return jsonify({'parcel': parcel_order}), 200
+    return jsonify({'message': "Bad Requests"}), 400
 #
 #
 # @parcels_bp.route('/parcels', methods=['POST'])
