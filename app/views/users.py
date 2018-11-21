@@ -27,15 +27,33 @@ def admin_required(func):
     def wrapper(*args, **kwargs):
         user_id = get_jwt_identity()
         if user_id:
-            user_obj.connect.cur.execute("SELECT is_admin from users where userId='{]';".format(user_id))
+            # user_obj.connect.cur.execute("SELECT is_admin from users where user_id='{}';".format(user_id))
+
+            user_obj.connect.cur.execute("SELECT is_admin FROM users where user_id = '%s'", (int(user_id['user_id']),))
+            # user_obj.connect.cur.execute("SELECT is_admin FROM users where users.userId={}".format(116))
             is_admin = user_obj.connect.cur.fetchone()
 
             if is_admin:
                 return func(*args, **kwargs)
+
         return jsonify({"message":"Unauthorized Access"}),401
         # return jsonify({"message":payload}),401
     return wrapper
-
+#
+# def non_admin(func):
+#     @wraps(func)
+#     def wrapper(*args, **kwargs):
+#         user_id = get_jwt_identity()
+#         if user_id:
+#             # user_obj.connect.cur.execute("SELECT is_admin from users where userId='{}';".format(user_id))
+#             user_obj.connect.cur.execute("SELECT is_admin FROM users where userId=%s", (user_id))
+#             is_admin = user_obj.connect.cur.fetchone()
+#
+#             if not is_admin:
+#                 return func(*args, **kwargs)
+#         return jsonify({"message":"Unauthorized Access"}),401
+#         # return jsonify({"message":payload}),401
+#     return wrapper
 
 @users_bp.route('/auth/register', methods=['POST'])
 def register():
@@ -94,7 +112,7 @@ def login():
     verify_user = user_obj.login_user(username=credentials['username'], password=credentials['password'])
     if verify_user['status'] == 'success':
         # create access token
-        payload = {'userId': verify_user['userId']}
+        payload = {'user_id': verify_user['user_id']}
 
         access_token = create_access_token(identity=payload)
 
