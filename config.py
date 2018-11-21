@@ -1,3 +1,6 @@
+import os
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 import random
 import string
 class Config(object):
@@ -5,26 +8,18 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
-
+    # DATABASE_URI = os.environ['DATABASE_URL']
 
 
 class ProductionConfig(Config):
     DEBUG = False
-    DATABASE_URL ="dbname=sendit user=postgres password=postgres host=localhost"
-
-
 
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
-    DATABASE_URL ="dbname=sendit user=postgres password=postgres host=localhost"
-
-
 
 class TestingConfig(Config):
     TESTING = True
-    DATABASE_URL ="dbname=sendit_TEST user=postgres password=postgres host=localhost"
-
 
 app_config = {
     "TESTING": TestingConfig,

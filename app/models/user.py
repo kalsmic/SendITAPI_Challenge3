@@ -25,13 +25,13 @@ class User:
         self.connect = Database()
 
     def sign_up(self, username, firstname, lastname, email, password, is_admin):
-        self.connect.cur.execute("SELECT * from users where username='{}'".format(username))
+        self.connect.cursor.execute("SELECT * from users where username='{}'".format(username))
 
-        if self.connect.cur.fetchone():
+        if self.connect.cursor.fetchone():
             return jsonify({"Error": "Username Exists"})
 
         password = generate_password_hash(password, method='sha256')
-        self.connect.cur.execute("""INSERT INTO users (username,firstname,lastname,email,password,is_admin) 
+        self.connect.cursor.execute("""INSERT INTO users (username,firstname,lastname,email,password,is_admin) 
         VALUES ( '{}','{}','{}','{}','{}','{}')""".format(username, firstname, lastname, email, password, is_admin))
 
         return jsonify({"success": 'Registered Succesfully '})
@@ -39,10 +39,10 @@ class User:
     def login_user(self, username, password):
         # self.connect.cur.execute("SELECT userId,username,password,is_admin FROM users where username='{}'"
         #                          .format(username))
-        self.connect.cur.execute("SELECT * FROM users where username='{}'"
+        self.connect.cursor.execute("SELECT * FROM users where username='{}'"
                                  .format(username))
 
-        user = self.connect.cur.fetchone()
+        user = self.connect.cursor.fetchone()
         # If username exists and has provided a valid password
         if user and check_password_hash(user['password'], password):
             return {'status': 'success', "is_admin": user['is_admin'], 'user_id': user['user_id']}

@@ -41,10 +41,10 @@ def get_a_parcel(parcelId):
 
     # Avoids returning the last item if parcel id of zero is given
     """checks if parcel id exists"""
-    parcels_obj.connect.cur.execute("SELECT * FROM parcels where parcel_id = '%s'",(parcelId,))
+    parcels_obj.connect.cursor.execute("SELECT * FROM parcels where parcel_id = '%s'",(parcelId,))
 
     # returns parcel with valid parcel id
-    if parcels_obj.connect.cur.rowcount >0:
+    if parcels_obj.connect.cursor.rowcount >0:
         parcel_order=parcels_obj.connect.cur.fetchone()
 
         return jsonify({'parcel': parcel_order}), 200

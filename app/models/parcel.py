@@ -15,8 +15,8 @@ class ParcelOrder:
 
         """Returns the details of a parcel delivery order"""
 
-        self.connect.cur.execute("SELECT * FROM parcels")
-        parcels = self.connect.cur.fetchall()
+        self.connect.cursor.execute("SELECT * FROM parcels")
+        parcels = self.connect.cursor.fetchall()
         return parcels
         # parcels = [ ]
         # for parcel in parcels

@@ -11,7 +11,7 @@ from flask import (
 )
 from flask_jwt_extended import (
     create_access_token,
-get_jwt_identity
+get_jwt_identity,verify_jwt_in_request
 )
 
 from functools import wraps
@@ -25,35 +25,29 @@ user_obj = User()
 def admin_required(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        user_id = get_jwt_identity()
-        if user_id:
-            # user_obj.connect.cur.execute("SELECT is_admin from users where user_id='{}';".format(user_id))
+        verify_jwt_in_request()
+        user_id = get_jwt_identity()['user_id']
+        user_obj.connect.cursor.execute("SELECT is_admin FROM users where user_id={}".format(user_id))
+        is_admin = user_obj.connect.cursor.fetchone()
 
-            user_obj.connect.cur.execute("SELECT is_admin FROM users where user_id = '%s'", (int(user_id['user_id']),))
-            # user_obj.connect.cur.execute("SELECT is_admin FROM users where users.userId={}".format(116))
-            is_admin = user_obj.connect.cur.fetchone()
-
-            if is_admin:
-                return func(*args, **kwargs)
-
+        if is_admin["is_admin"]:
+            return func(*args, **kwargs)
         return jsonify({"message":"Unauthorized Access"}),401
-        # return jsonify({"message":payload}),401
     return wrapper
-#
-# def non_admin(func):
-#     @wraps(func)
-#     def wrapper(*args, **kwargs):
-#         user_id = get_jwt_identity()
-#         if user_id:
-#             # user_obj.connect.cur.execute("SELECT is_admin from users where userId='{}';".format(user_id))
-#             user_obj.connect.cur.execute("SELECT is_admin FROM users where userId=%s", (user_id))
-#             is_admin = user_obj.connect.cur.fetchone()
-#
-#             if not is_admin:
-#                 return func(*args, **kwargs)
-#         return jsonify({"message":"Unauthorized Access"}),401
-#         # return jsonify({"message":payload}),401
-#     return wrapper
+def non_admin(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        verify_jwt_in_request()
+        user_id = get_jwt_identity()['user_id']
+        user_obj.connect.cursor.execute("SELECT is_admin FROM users where user_id={}".format(user_id))
+        is_admin = user_obj.connect.cursor.fetchone()
+
+        if not is_admin["is_admin"]:
+            return func(*args, **kwargs)
+        return jsonify({"message":"Unauthorized Access"}),401
+    return wrapper
+
+
 
 @users_bp.route('/auth/register', methods=['POST'])
 def register():
