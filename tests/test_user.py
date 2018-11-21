@@ -2,10 +2,11 @@
 from flask import json
 user_with_missing_data = {
     "username": "",
-    "firstname": "Arhtur",
+    "firstname": "Arthur",
     "lastname": "kalule",
     "email": "kalulearthur@gmail.com",
-    "password": "passswrd"
+    "password": "password",
+    'is_admin':"FALSE"
 
 }
 user_with_complete_data = {
@@ -13,7 +14,8 @@ user_with_complete_data = {
     "firstname": "Arhtur",
     "lastname": "kalule",
     "email": "kalulearthur@gmail.com",
-    "password": "password"
+    "password": "password",
+    "is_admin":"TRUE"
 
 }
 user_with_invalid_email_data = {
@@ -21,7 +23,8 @@ user_with_invalid_email_data = {
     "firstname": "Jonathan",
     "lastname": "Davis",
     "email": "jhdfdfmail.com",
-    "password": "passswrd"
+    "password": "passswrd",
+    "is_admin":"TRUE"
 
 }
 
@@ -34,7 +37,7 @@ def test_register_user(test_client):
         'Accept': mimetype
     }
     # Tests register a user with missing data
-    with test_client.post('/api/v2/auth/register', data=json.dumps(user_with_missing_data), headers=headers) as \
+    with test_client.post('/api/v2/auth/register', data=json.dumps(user_with_missing_data), headers=headers) as\
             create_user_with_missing_data:
         assert create_user_with_missing_data.status_code == 400
         data = json.loads(create_user_with_missing_data.data.decode())
@@ -53,3 +56,19 @@ def test_register_user(test_client):
         assert create_user_with_complete_data.status_code == 200
         data = json.loads(create_user_with_complete_data.data.decode())
         assert data == {"success": "Registered Succesfully "}
+
+
+    # Tests login a user with wrong credentials
+    with test_client.post('/api/v2/auth/login', data=json.dumps({"username": "admin","password": "ajmin"}),
+                          headers=headers) as  login_user_with_wrong_credentials:
+        assert login_user_with_wrong_credentials.status_code == 400
+
+
+    # Tests login a user with correct credentials
+    with test_client.post('/api/v2/auth/register', data=json.dumps(user_with_complete_data), headers=headers) \
+            as register_user
+
+        with test_client.post('/api/v2/auth/login', data=json.dumps({"username": "admin","password": "admin"}),
+                              headers=headers) as login_user_with_correct_credentials:
+            assert login_user_with_correct_credentials.status_code == 200
+
