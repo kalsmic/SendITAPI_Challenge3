@@ -10,14 +10,31 @@ from flask import (
     json
 )
 from flask_jwt_extended import (
-    create_access_token
+    create_access_token,
+get_jwt_identity
 )
+
+from functools import wraps
 
 from app.models.user import User
 
 users_bp = Blueprint('users_bp', __name__, url_prefix='/api/v2')
 
 user_obj = User()
+
+def admin_required(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        user_id = get_jwt_identity()
+        if user_id:
+            user_obj.connect.cur.execute("SELECT is_admin from users where userId='{]';".format(user_id))
+            is_admin = user_obj.connect.cur.fetchone()
+
+            if is_admin:
+                return func(*args, **kwargs)
+        return jsonify({"message":"Unauthorized Access"}),401
+        # return jsonify({"message":payload}),401
+    return wrapper
 
 
 @users_bp.route('/auth/register', methods=['POST'])
@@ -52,7 +69,8 @@ def register():
                           firstname=new_user['firstname'],
                           lastname=new_user['lastname'],
                           email=new_user['email'],
-                          password=new_user['password']
+                          password=new_user['password'],
+                          is_admin=new_user['is_admin']
                           )
 
 
@@ -74,9 +92,11 @@ def login():
 
     # Submit valid data
     verify_user = user_obj.login_user(username=credentials['username'], password=credentials['password'])
-    if verify_user:
+    if verify_user['status'] == 'success':
         # create access token
-        access_token = create_access_token(identity=credentials['username'])
+        payload = {'userId': verify_user['userId']}
+
+        access_token = create_access_token(identity=payload)
 
         return jsonify({"access_token": access_token}), 200
     # wrong user name or password
