@@ -12,14 +12,13 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_req
 from app.models.parcel import ParcelOrder
 from app.views.users import admin_required, non_admin
 
+from app.helpers import (
+get_current_user_id
+)
 parcels_bp = Blueprint('parcels_bp', __name__, url_prefix='/api/v2')
 parcels_obj = ParcelOrder()
 
 
-def get_current_user_id():
-    verify_jwt_in_request(),
-    user_id = get_jwt_identity()
-    return user_id['user_id']
 
 
 @parcels_bp.route('/parcels', methods=['GET'])
@@ -146,6 +145,7 @@ def update_parcel_status(parcelId):
 
     return parcels_obj.update_parcel_status(parcelId, new_parcel_status['parcelStatus'])
 
+
 @parcels_bp.route('/parcels/<parcelId>/presentLocation', methods=['PUT'])
 @jwt_required
 @admin_required
@@ -161,6 +161,7 @@ def update_parcel_present_location(parcelId):
     except ValueError:
         return jsonify({"message": "Bad Request"}), 400
 
+
     data = request.data
     new_parcel_present_location = json.loads(data)
     new_parcel_present_location = new_parcel_present_location['presentLocation']
@@ -170,7 +171,41 @@ def update_parcel_present_location(parcelId):
         return jsonify({"message": "parcel's new present location cannot be empty"}), 400
 
     # Check if new present location is an integer
-    if isinstance(new_parcel_present_location,int):
+    if isinstance(new_parcel_present_location, int):
         return jsonify({"message": "parcel's new present location cannot be an integer"}), 400
 
-    return parcels_obj.update_parcel_present_location(parcelId=parcelId, new_present_location=new_parcel_present_location)
+    return parcels_obj.update_parcel_present_location(parcelId=parcelId,
+                                                      new_present_location=new_parcel_present_location)
+
+
+@parcels_bp.route('/parcels/<parcelId>/destination', methods=['PUT'])
+@jwt_required
+@non_admin
+def update_present_parcel_destination(parcelId):
+    """Parameter: integer parcelId
+       Returns: 400 if parcelId is not  of type int
+       Returns: 200 if parcel's destination is successfully updated
+    """
+    # cast parcelId to int
+    try:
+        parcelId = int(parcelId)
+    #     if parcel id is not an integer
+    except ValueError:
+        return jsonify({"message": "Bad Request"}), 400
+
+    new_present_parcel_destination = json.loads(request.data)
+    try:
+        new_present_parcel_destination = new_present_parcel_destination['destinationAddress']
+    except KeyError:
+        return jsonify({"message": "Bad format input"}), 422
+
+    # Check if input data is empty
+    if not new_present_parcel_destination:
+        return jsonify({"message": "parcel's new present location cannot be empty"}), 400
+
+    # Check if new parcel destination location is an integer
+    if isinstance(new_present_parcel_destination, int):
+        return jsonify({"message": "parcel's destination cannot be an integer"}), 400
+
+    return parcels_obj.update_parcel_destination_address(parcelId=parcelId,
+                                                      new_destination_address=new_present_parcel_destination)

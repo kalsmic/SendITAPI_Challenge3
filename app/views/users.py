@@ -34,7 +34,7 @@ def admin_required(func):
 
         if is_admin["is_admin"]:
             return func(*args, **kwargs)
-        return jsonify({"message": "Unauthorized Access"}), 401
+        return jsonify({"message": "You are not authorized to access this Resource"}), 401
 
     return wrapper
 
