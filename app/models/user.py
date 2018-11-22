@@ -67,14 +67,14 @@ class User:
             return jsonify({"parcels": parcels}), 200
 
         if not is_admin['is_admin'] and owner_id != userId:
-            return jsonify({"message": "Access Denied"})
+            return jsonify({"message": "You can only access your parcel's"}),403
 
         self.connect.cursor.execute("SELECT * from parcels where owner_id='{}' AND owner_id='{}'".format(userId,owner_id))
 
         parcels=self.connect.cursor.fetchall()
         if parcels:
             return jsonify({"parcels":parcels}),200
-        return jsonify({"message":"No parcels found"}),200
+        return jsonify({"message":"No parcels place yet"}),404
 
 
 
