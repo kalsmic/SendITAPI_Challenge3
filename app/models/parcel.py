@@ -1,8 +1,9 @@
 # parcel.py
 from flask import jsonify
 
-from .database import Database
 from app.helpers import get_current_user_id
+from .database import Database
+
 
 class ParcelOrder:
 
@@ -88,7 +89,6 @@ class ParcelOrder:
 
         return jsonify({"message": "Parcel's present location updated to " + new_present_location}), 200
 
-
     def update_parcel_destination_address(self, parcelId, new_destination_address):
         """Updates the status of the parcel delivery order"""
 
@@ -103,8 +103,7 @@ class ParcelOrder:
 
         # check if parcel belongs to current user
         if current_parcel_owner != get_current_user_id():
-            return jsonify({"message":"You are not allowed to modify this resource"}),403
-
+            return jsonify({"message": "You are not allowed to modify this resource"}), 403
 
         if current_parcel_status.lower() != 'pending':
             # Can only update destination of a parcel who's status is is pending

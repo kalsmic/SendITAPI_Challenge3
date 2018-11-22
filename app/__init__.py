@@ -1,9 +1,12 @@
+import os
+
 from flask import Flask
 from flask_jwt_extended import JWTManager
 
 from app.views.users import users_bp
 from app.views.parcels import parcels_bp
 from config import app_config
+
 
 
 def create_app(config_name):

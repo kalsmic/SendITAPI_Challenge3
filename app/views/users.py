@@ -60,13 +60,13 @@ def register():
             username(type - string)
             first_name(type - string)
             last_name(type - string)
-            email(type - string)# NOTE:
+            email(type - string)
             password(type - string)
     """
-    data = request.data
-    new_user = json.loads(data)
+    if not request.data:
+        return jsonify({'Message': "Bad format request"}), 400
 
-    # empty_fields = []
+    new_user = json.loads(request.data)
 
     # Traverse through the new_user input data
     for key, value in new_user.items():
@@ -74,21 +74,20 @@ def register():
         if not value:
             return jsonify({'Message': "{} cannot be empty".format(key)}), 400
 
+    try:
+        username = new_user['username']
+        firstname = new_user['firstname']
+        lastname = new_user['lastname']
+        email = new_user['email']
+        password = new_user['password']
+    except KeyError:
+        return jsonify({"message": "Bad format input"}), 422
+
     if not re.match('[^@]+@[^@]+\.[^@]+', new_user['email']):
         return jsonify({'Message': "Invalid email"}), 400
 
-    # validate email - to be worked on
-    # if not validate_email(new_user['email']):
-    #     return jsonify({"Message": "Please provide a valid email"}), 400
-
     # Submit valid data
-    return User().sign_up(username=new_user['username'],
-                          firstname=new_user['firstname'],
-                          lastname=new_user['lastname'],
-                          email=new_user['email'],
-                          password=new_user['password'],
-                          is_admin=new_user['is_admin']
-                          )
+    return User().sign_up(username=username, firstname=firstname, lastname=lastname, email=email, password=password)
 
 
 @users_bp.route('/auth/login', methods=['POST'])
@@ -98,8 +97,10 @@ def login():
             password(type - string)
     """
 
-    data = request.data
-    credentials = json.loads(data)
+    if not request.data:
+        return jsonify({'Message': "Bad format request"}), 400
+
+    credentials = json.loads(request.data)
 
     # Traverse through the new_user input data
     for key, value in credentials.items():
@@ -107,8 +108,14 @@ def login():
         if not value:
             return jsonify({'Message': "{} cannot be empty".format(key)}), 400
 
+    try:
+        username = credentials['username']
+        password = credentials['password']
+    except KeyError:
+        return jsonify({"message": "Bad format input"}), 422
+
     # Submit valid data
-    verify_user = user_obj.login_user(username=credentials['username'], password=credentials['password'])
+    verify_user = user_obj.login_user(username=username, password=password)
     if verify_user['status'] == 'success':
         # create access token
         payload = {'user_id': verify_user['user_id']}
@@ -135,6 +142,6 @@ def get_a_parcel_by_userId(userId):
         # userId is not a number
         # Therefore cannot be cast to an integer
 
-        return jsonify({"mesage": "Bad Request"}), 400
+        return jsonify({"message": "Bad Request"}), 400
 
     return user_obj.get_all_parcels_for_a_specific_user(userId)
