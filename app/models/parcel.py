@@ -16,9 +16,21 @@ class ParcelOrder:
         """Returns the details of a parcel delivery order"""
 
         self.connect.cursor.execute("SELECT * FROM parcels")
+
         parcels = self.connect.cursor.fetchall()
         return parcels
-        # parcels = [ ]
+
+    def insert__a_parcel(self,item,pick_up_location,pick_up_date,destination,owner_id):
+        # insert new parcel
+
+        self.connect.cursor.execute("""INSERT INTO parcels(
+        item, pick_up_location, pick_up_date, destination, owner_id) 
+        VALUES ('{}','{}','{}','{}','{}')
+        """.format(item, pick_up_location, pick_up_date, destination,owner_id))
+
+
+
+ # parcels = [ ]
         # for parcel in parcels
         # return {
         #     'parcelId': parcels['parcel_id'],
