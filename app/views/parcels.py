@@ -103,7 +103,7 @@ def add_a_parcel_order():
 def cancel_a_delivery_order(parcelId):
     """Parameter: integer parcelId
        Returns: 400 if parcelId is not  of type int
-       Returns: 200 if parcel's successfully cancelled and the details of the specific parcel
+       Returns: 200 if parcel's successfully cancelled
        Returns : 304 if parcel is Already cancelled or Delivered
     """
     # cast parcelId to int
@@ -111,24 +111,36 @@ def cancel_a_delivery_order(parcelId):
         parcelId = int(parcelId)
     #     if parcel id is not an integer
     except ValueError:
-        return jsonify({"message":"Bad Request"}), 400
+        return jsonify({"message": "Bad Request"}), 400
 
-    # parcels_obj.cancel_a_parcel(parcelId,get_current_user_id(),'Cancelled')
-    # result = \
-    return parcels_obj.cancel_a_parcel(parcelId,2,'Cancelled')
+    owner_id = get_current_user_id()
 
-    # return jsonify({"status": "updated"})
-
-    # if result['status'] =='success':
-    #     return jsonify({"message": "Parcel status updated successfully"}),201
-    #
-    # if result['status'] =='Not Modified':
-    #     return jsonify({"message": "Not Modified"}),304
-    #
-    # # parcel id does not exist or parcel does not belong to current user
-    # if result['status'] =='Bad Request':
-    #
-    #     return jsonify({"message": "Bad Request"}),400
+    return parcels_obj.cancel_a_parcel(parcelId, owner_id, 'Cancelled')
 
 
+@parcels_bp.route('/parcels/<parcelId>/status', methods=['PUT'])
+@jwt_required
+@admin_required
+def update_parcel_status(parcelId):
+    """Parameter: integer parcelId
+       Returns: 400 if parcelId is not  of type int
+       Returns: 200 if parcel's status is successfully updated
+    """
+    # cast parcelId to int
+    try:
+        parcelId = int(parcelId)
+    #     if parcel id is not an integer
+    except ValueError:
+        return jsonify({"message": "Bad Request"}), 400
 
+    data = request.data
+    new_parcel_status = json.loads(data)
+
+    if not new_parcel_status['parcelStatus']:
+        return jsonify({"message": "parcel status cannot be empty"}), 400
+
+    if new_parcel_status['parcelStatus'] not in ['in transit', 'delivered']:
+        return jsonify({"message": "Parcel's status Cannot be updated to " + new_parcel_status['parcelStatus']}), 400
+
+    if new_parcel_status['parcelStatus'] and new_parcel_status['parcelStatus'] not in ("In transit", "Delivered"):
+        return parcels_obj.update_parcel_status(parcelId, new_parcel_status['parcelStatus'])
