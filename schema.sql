@@ -23,7 +23,7 @@ create table if not exists parcels
 	pick_up_location varchar(150),
 	pick_up_date varchar(25),
 	destination varchar(150),
-	delivered_on varchar(25) NULL,
+	present_location varchar(50) NOT NULL,
 	status varchar(10) default 'pending',
 	owner_id integer
 		constraint parcels_owner_id_fkey

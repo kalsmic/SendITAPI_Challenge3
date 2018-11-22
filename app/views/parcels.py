@@ -46,7 +46,7 @@ def get_a_parcel(parcelId):
         parcelId = int(parcelId)
     #     if parcel id is not an integer
     except ValueError:
-        return jsonify({"message": "Bad Request"}), 400
+        return jsonify({"message": "Provide a valid parcel Id"}), 400
 
     # Avoids returning the last item if parcel id of zero is given
     """checks if parcel id exists"""
@@ -57,7 +57,7 @@ def get_a_parcel(parcelId):
         parcel_order = parcels_obj.connect.cur.fetchone()
 
         return jsonify({'parcel': parcel_order}), 200
-    return jsonify({'message': "Bad Requests"}), 400
+    return jsonify({'message': "Parcel delivery order does not exist"}), 400
 
 
 @parcels_bp.route('/parcels', methods=['POST'])
@@ -136,11 +136,41 @@ def update_parcel_status(parcelId):
     data = request.data
     new_parcel_status = json.loads(data)
 
+    # Check if input data is empty
     if not new_parcel_status['parcelStatus']:
         return jsonify({"message": "parcel status cannot be empty"}), 400
 
+    # Cannot update parcel status who's status is neither in transit or delivered
     if new_parcel_status['parcelStatus'] not in ['in transit', 'delivered']:
         return jsonify({"message": "Parcel's status Cannot be updated to " + new_parcel_status['parcelStatus']}), 400
 
-    if new_parcel_status['parcelStatus'] and new_parcel_status['parcelStatus'] not in ("In transit", "Delivered"):
-        return parcels_obj.update_parcel_status(parcelId, new_parcel_status['parcelStatus'])
+    return parcels_obj.update_parcel_status(parcelId, new_parcel_status['parcelStatus'])
+
+@parcels_bp.route('/parcels/<parcelId>/presentLocation', methods=['PUT'])
+@jwt_required
+@admin_required
+def update_parcel_present_location(parcelId):
+    """Parameter: integer parcelId
+       Returns: 400 if parcelId is not  of type int
+       Returns: 200 if parcel's status is successfully updated
+    """
+    # cast parcelId to int
+    try:
+        parcelId = int(parcelId)
+    #     if parcel id is not an integer
+    except ValueError:
+        return jsonify({"message": "Bad Request"}), 400
+
+    data = request.data
+    new_parcel_present_location = json.loads(data)
+    new_parcel_present_location = new_parcel_present_location['presentLocation']
+
+    # Check if input data is empty
+    if not new_parcel_present_location:
+        return jsonify({"message": "parcel's new present location cannot be empty"}), 400
+
+    # Check if new present location is an integer
+    if isinstance(new_parcel_present_location,int):
+        return jsonify({"message": "parcel's new present location cannot be an integer"}), 400
+
+    return parcels_obj.update_parcel_present_location(parcelId=parcelId, new_present_location=new_parcel_present_location)
