@@ -96,30 +96,39 @@ def add_a_parcel_order():
 
     return jsonify({"parcel": 'Parcel Created Successfully'}), 201
 
-#
-# @parcels_bp.route('/parcels/<parcelId>/cancel', methods=['PUT'])
-# def cancel_a_delivery_order(parcelId):
-#     """Parameter: integer parcelId
-#        Returns: 400 if parcelId is not  of type int
-#        Returns: 200 if parcel's successfully cancelled and the details of the specific parcel
-#        Returns : 304 if parcel is Already cancelled or Delivered
-#     """
-#     # cast parcelId to int
-#     try:
-#         parcelId = int(parcelId)
-#     #     if parcel id is not an integer
-#     except ValueError:
-#         return jsonify(Bad_request), 400
-#
-#     # Check if parcel id exists in the parcel's table
-#     """checks if parcel id exists"""
-#     if parcelId not in parcel_id_table.keys():
-#         return jsonify(Bad_request), 400
-#
-#     # Check if parcel is still pending
-#     if parcelOrders[parcelId - 1].status.upper() == 'PENDING':
-#         parcelOrders[parcelId - 1].status = 'Cancelled'
-#         return jsonify({'parcel': parcelOrders[parcelId - 1].parcel_details()}), 200
-#
-#     # Cannot cancel parcels with status cancelled, In transit or delivered
-#     return jsonify(Not_modified), 304
+
+@parcels_bp.route('/parcels/<parcelId>/cancel', methods=['PUT'])
+@jwt_required
+@non_admin
+def cancel_a_delivery_order(parcelId):
+    """Parameter: integer parcelId
+       Returns: 400 if parcelId is not  of type int
+       Returns: 200 if parcel's successfully cancelled and the details of the specific parcel
+       Returns : 304 if parcel is Already cancelled or Delivered
+    """
+    # cast parcelId to int
+    try:
+        parcelId = int(parcelId)
+    #     if parcel id is not an integer
+    except ValueError:
+        return jsonify({"message":"Bad Request"}), 400
+
+    # parcels_obj.cancel_a_parcel(parcelId,get_current_user_id(),'Cancelled')
+    # result = \
+    return parcels_obj.cancel_a_parcel(parcelId,2,'Cancelled')
+
+    # return jsonify({"status": "updated"})
+
+    # if result['status'] =='success':
+    #     return jsonify({"message": "Parcel status updated successfully"}),201
+    #
+    # if result['status'] =='Not Modified':
+    #     return jsonify({"message": "Not Modified"}),304
+    #
+    # # parcel id does not exist or parcel does not belong to current user
+    # if result['status'] =='Bad Request':
+    #
+    #     return jsonify({"message": "Bad Request"}),400
+
+
+
