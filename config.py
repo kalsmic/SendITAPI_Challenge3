@@ -13,10 +13,12 @@ class Config(object):
 
 class ProductionConfig(Config):
     DEBUG = False
+    DATABASE_URI = os.environ.get('DATABASE_URL_PRODUCTION  ')
 
 class DevelopmentConfig(Config):
     DEVELOPMENT = True
     DEBUG = True
+    DATABASE_URI = os.environ.get('TEST_DATABASE_URL')
 
 class TestingConfig(Config):
     TESTING = True

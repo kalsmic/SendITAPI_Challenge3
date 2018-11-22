@@ -7,23 +7,21 @@ from flask import (
     request,
     json
 )
-from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
+from flask_jwt_extended import jwt_required
 
+from app.helpers import (
+    get_current_user_id
+)
 from app.models.parcel import ParcelOrder
 from app.views.users import admin_required, non_admin
 
-from app.helpers import (
-get_current_user_id
-)
 parcels_bp = Blueprint('parcels_bp', __name__, url_prefix='/api/v2')
 parcels_obj = ParcelOrder()
 
 
-
-
 @parcels_bp.route('/parcels', methods=['GET'])
-@jwt_required
-@admin_required
+# @jwt_required
+# @admin_required
 def get_all_parcels():
     """Fetch all parcel delivery orders"""
 
@@ -75,8 +73,12 @@ def add_a_parcel_order():
 
 #     """
 
-    data = request.data
-    parcelDict = json.loads(data)
+    # Check if request data is provided
+    if not request.data:
+        return jsonify({'Message': "Bad format request"}), 400
+
+    parcelDict = json.loads(request.data)
+
     # Traverse through the input
     for key, value in parcelDict.items():
 
@@ -84,14 +86,19 @@ def add_a_parcel_order():
         if not value:
             return jsonify({'message': "{} cannot be empty".format(key)}), 400
 
+    # check if valid dictionary keys have been provided
+    try:
+        item = parcelDict['item']
+        pick_up_location = parcelDict['pick_up_location']
+        pick_up_date = parcelDict['pick_up_date']
+        destination = parcelDict['destination']
+    except KeyError:
+        return jsonify({"message": "Bad format input"}), 422
+
     # add new parcel order
 
-    result = parcels_obj.insert__a_parcel(item=parcelDict['item'],
-                                          pick_up_location=parcelDict['pick_up_location'],
-                                          pick_up_date=parcelDict['pick_up_date'],
-                                          destination=parcelDict['destination'],
-                                          owner_id=get_current_user_id()
-                                          )
+    result = parcels_obj.insert__a_parcel(item=item, pick_up_location=pick_up_location, pick_up_date=pick_up_date,
+                                          destination=destination, owner_id=get_current_user_id())
 
     return jsonify({"parcel": 'Parcel Created Successfully'}), 201
 
@@ -132,8 +139,17 @@ def update_parcel_status(parcelId):
     except ValueError:
         return jsonify({"message": "Bad Request"}), 400
 
-    data = request.data
-    new_parcel_status = json.loads(data)
+    # check if request data is provided
+    if not request.data:
+        return jsonify({'Message': "Bad format request"}), 400
+
+    new_parcel_status = json.loads(request.data)
+
+    # check if valid dictionary keys have been provided
+    try:
+        new_parcel_status['parcelStatus']
+    except KeyError:
+        return jsonify({"message": "Bad format input"}), 422
 
     # Check if input data is empty
     if not new_parcel_status['parcelStatus']:
@@ -161,9 +177,10 @@ def update_parcel_present_location(parcelId):
     except ValueError:
         return jsonify({"message": "Bad Request"}), 400
 
+    if not request.data:
+        return jsonify({'Message': "Bad format request"}), 400
 
-    data = request.data
-    new_parcel_present_location = json.loads(data)
+    new_parcel_present_location = json.loads(request.data)
     new_parcel_present_location = new_parcel_present_location['presentLocation']
 
     # Check if input data is empty
@@ -193,7 +210,12 @@ def update_present_parcel_destination(parcelId):
     except ValueError:
         return jsonify({"message": "Bad Request"}), 400
 
+    if not request.data:
+        return jsonify({'Message': "Bad format request"}), 400
+
     new_present_parcel_destination = json.loads(request.data)
+
+    # Check if data contains valid dictionary keys
     try:
         new_present_parcel_destination = new_present_parcel_destination['destinationAddress']
     except KeyError:
@@ -208,4 +230,4 @@ def update_present_parcel_destination(parcelId):
         return jsonify({"message": "parcel's destination cannot be an integer"}), 400
 
     return parcels_obj.update_parcel_destination_address(parcelId=parcelId,
-                                                      new_destination_address=new_present_parcel_destination)
+                                                         new_destination_address=new_present_parcel_destination)

@@ -1,8 +1,8 @@
 # app/models/database.py
-
+import os
 import psycopg2
 from psycopg2.extras import RealDictCursor
-
+DATABASE_URL = os.environ.get('DATABASE_URL')
 
 class Database:
 
@@ -22,9 +22,8 @@ class Database:
         self.cursor.execute(open("/home/andela/Desktop/SentITAPI_Challenge3/schema.sql", "r").read())
 
     def empty_tables(self):
-        sql_queries = ('Truncate users', 'Truncate parcels')
-        for query in sql_queries:
-            self.cursor.execute(query)
+       self.cursor.execute('DELETE FROM parcels')
+       self.cursor.execute('DELETE FROM users')
 
 
 if __name__ == "__main__":

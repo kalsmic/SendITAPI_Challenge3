@@ -24,15 +24,15 @@ class User:
         # create a database connection
         self.connect = Database()
 
-    def sign_up(self, username, firstname, lastname, email, password, is_admin):
+    def sign_up(self, username, firstname, lastname, email, password):
         self.connect.cursor.execute("SELECT * from users where username='{}'".format(username))
 
         if self.connect.cursor.fetchone():
             return jsonify({"Error": "Username Exists"})
 
         password = generate_password_hash(password, method='sha256')
-        self.connect.cursor.execute("""INSERT INTO users (username,firstname,lastname,email,password,is_admin) 
-        VALUES ( '{}','{}','{}','{}','{}','{}')""".format(username, firstname, lastname, email, password, is_admin))
+        self.connect.cursor.execute("""INSERT INTO users (username,firstname,lastname,email,password) 
+        VALUES ( '{}','{}','{}','{}','{}')""".format(username, firstname, lastname, email, password))
 
         return jsonify({"success": 'Registered Succesfully '})
 
