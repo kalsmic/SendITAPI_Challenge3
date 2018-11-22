@@ -12,7 +12,7 @@ def test_client():
     app = create_app('TESTING')
     db = Database()
     db.empty_tables()
-    db.cursor.execute(open("test_data.sql", "r").read())
+    # db.cursor.execute(open("test_data.sql", "r").read())
 
     test_client = app.test_client()
 
@@ -24,18 +24,4 @@ def test_client():
 
     context.pop()
 
-#
-#
-# @pytest.fixture(scope='function')
-# def init_database():
-#     # Create the database and the database table
-#     db = Database()
-#     db.empty_tables()
-#
-#     # Insert user data
-#
-#     # db.session.commit()
-#
-#     yield db  # this is where the testing happens!
-#
-#     db.drop_all()
+

@@ -20,8 +20,8 @@ parcels_obj = ParcelOrder()
 
 
 @parcels_bp.route('/parcels', methods=['GET'])
-# @jwt_required
-# @admin_required
+@jwt_required
+@admin_required
 def get_all_parcels():
     """Fetch all parcel delivery orders"""
 

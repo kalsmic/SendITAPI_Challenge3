@@ -14,7 +14,7 @@ user_with_complete_data = {
     "firstname": "user2Fname",
     "lastname": "user2Lname",
     "email": "user2@gmail.com",
-    "password": "password"
+    "password": "user1"
 
 }
 user_input_wrong_dictionary_key = {
@@ -81,7 +81,7 @@ def test_user_login_(test_client):
                           headers=headers) as login_admin_user_with_correct_credentials:
         assert login_admin_user_with_correct_credentials.status_code == 200
 
-    with test_client.post('/api/v2/auth/login', data=json.dumps({"username": "user2", "password": "password"}),
+    with test_client.post('/api/v2/auth/login', data=json.dumps({"username": "user1", "password": "user1"}),
                           headers=headers) as login_non_admin_user_with_correct_credentials:
         assert login_non_admin_user_with_correct_credentials.status_code == 200
 

@@ -23,7 +23,7 @@ class Database:
 
     def empty_tables(self):
        self.cursor.execute('DELETE FROM parcels')
-       self.cursor.execute('DELETE FROM users')
+       self.cursor.execute('DELETE FROM users WHERE user_id > 2')
 
 
 if __name__ == "__main__":
