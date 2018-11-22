@@ -2,6 +2,7 @@
 """File contains routes for user end point"""
 
 import re
+from functools import wraps
 
 from flask import (
     Blueprint,
@@ -11,16 +12,17 @@ from flask import (
 )
 from flask_jwt_extended import (
     create_access_token,
-get_jwt_identity,verify_jwt_in_request
+    get_jwt_identity,
+    verify_jwt_in_request,
+    jwt_required
 )
-
-from functools import wraps
 
 from app.models.user import User
 
 users_bp = Blueprint('users_bp', __name__, url_prefix='/api/v2')
 
 user_obj = User()
+
 
 def admin_required(func):
     @wraps(func)
@@ -32,8 +34,11 @@ def admin_required(func):
 
         if is_admin["is_admin"]:
             return func(*args, **kwargs)
-        return jsonify({"message":"Unauthorized Access"}),401
+        return jsonify({"message": "Unauthorized Access"}), 401
+
     return wrapper
+
+
 def non_admin(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -44,9 +49,9 @@ def non_admin(func):
 
         if not is_admin["is_admin"]:
             return func(*args, **kwargs)
-        return jsonify({"message":"Unauthorized Access"}),401
-    return wrapper
+        return jsonify({"message": "Unauthorized Access"}), 401
 
+    return wrapper
 
 
 @users_bp.route('/auth/register', methods=['POST'])
@@ -113,3 +118,23 @@ def login():
         return jsonify({"access_token": access_token}), 200
     # wrong user name or password
     return jsonify({"message": "Invalid credentials"}), 400
+
+
+@users_bp.route('/<userId>/parcels', methods=['GET'])
+@jwt_required
+def get_a_parcel_by_userId(userId):
+    """Fetch all parcel delivery
+    orders by a specific user """
+
+    # cast parcelId to int
+    try:
+
+        userId = int(userId)
+
+    except ValueError:
+        # userId is not a number
+        # Therefore cannot be cast to an integer
+
+        return jsonify({"mesage": "Bad Request"}), 400
+
+    return user_obj.get_all_parcels_for_a_specific_user(userId)

@@ -31,6 +31,7 @@ def get_all_parcels():
     return jsonify({'parcels': parcels_obj.parcel_details()}), 200
 
 
+#
 @parcels_bp.route('/parcels/<parcelId>', methods=['GET'])
 @jwt_required
 @non_admin
@@ -110,7 +111,24 @@ def cancel_a_delivery_order(parcelId):
         parcelId = int(parcelId)
     #     if parcel id is not an integer
     except ValueError:
-        return jsonify({"message": "Bad Request"}), 400
+        return jsonify({"message":"Bad Request"}), 400
 
-    return parcels_obj.cancel_a_parcel(parcelId, 2, 'Cancelled')
+    # parcels_obj.cancel_a_parcel(parcelId,get_current_user_id(),'Cancelled')
+    # result = \
+    return parcels_obj.cancel_a_parcel(parcelId,2,'Cancelled')
+
+    # return jsonify({"status": "updated"})
+
+    # if result['status'] =='success':
+    #     return jsonify({"message": "Parcel status updated successfully"}),201
+    #
+    # if result['status'] =='Not Modified':
+    #     return jsonify({"message": "Not Modified"}),304
+    #
+    # # parcel id does not exist or parcel does not belong to current user
+    # if result['status'] =='Bad Request':
+    #
+    #     return jsonify({"message": "Bad Request"}),400
+
+
 
