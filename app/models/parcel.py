@@ -47,38 +47,21 @@ class ParcelOrder:
         return jsonify({'message':'Parcel status updated'}),200
 
 
-# parcels = [ ]
-# for parcel in parcels
-# return {
-#     'parcelId': parcels['parcel_id'],
-#     "Item": parcels['.item'],
-#     "destination": parcels['destination'],
-#     "ownerId": parcels['owner_id'],
-#     "pickUpLocation": parcels['pick_up_location'],
-#     "pickUpDate": parcels['pick_up_date'],
-#     "deliveredOn": parcels['delivered_on'],
-#     "status": parcels['status']
-# }
+    def update_parcel_status(self,parcelId, new_parcel_status):
+        """Updates the status of the parcel delivery order"""
 
-# def cancel_parcel_Order(self):
-#     """Cancels a parcel delivery order"""
-#     if self.status.upper() == 'PENDING':
-#         # cancel Order
-#         self.status = 'CANCELLED'
-#
-#         return True
-#
-#     # Order is already delivered,Cancelled,or In transit
-#     return False
+        self.connect.cursor.execute("SELECT status from parcels where parcel_id = '{}'".format(parcelId))
+        parcel_status = self.connect.cursor.fetchone()
+        parcel_status = parcel_status['status']
 
-#
-# parcelOrders = [
-#     ParcelOrder('item', 'pickUp Address', 'Destination Address', 'pending', 1),
-#     ParcelOrder('Laptop', 'Kampala', 'Moroto', 'Pending', 1),
-#     ParcelOrder('Office Cabin', 'Kole', 'Otuke', 'In Transit', 2),
-#     ParcelOrder('HMIS FORMS', 'Kitgum', 'Agago', 'Delivered', 1),
-#     ParcelOrder('HRH PLANS', 'Yumbe', 'Koboko', 'Cancelled', 1),
-#     ParcelOrder('DJ Mavic Air Beats', 'Mwanza', 'Bukoba', 'Cancelled', 1),
-#     ParcelOrder('APPRAISAL FORMS', 'Mwanza', 'Bukoba', 'Pending', 2)
-#
-# ]
+        if parcel_status.lower() in ['cancelled','delivered']:
+            return jsonify({"message": "Cannot update parcel status for parcel with status "+ parcel_status}), 200
+
+
+        if parcel_status.lower()== str(new_parcel_status).lower():
+            return jsonify({"message":"Status already set to " + parcel_status}),200
+
+        self.connect.cursor.execute("UPDATE parcels set status='{}' WHERE parcel_id='{}'".format(new_parcel_status, parcelId)),200
+        return jsonify({"message":"Parcel status successfully updated to " + new_parcel_status}),200
+
+
