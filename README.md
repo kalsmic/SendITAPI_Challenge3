@@ -6,6 +6,7 @@ SendIT is a courier service that helps users deliver parcels to different destin
 [![Maintainability](https://api.codeclimate.com/v1/badges/30b7a7545d136606e83c/maintainability)](https://codeclimate.com/github/kalsmic/SendITAPI_Challenge3/maintainability)
 
 [![Test Coverage](https://api.codeclimate.com/v1/badges/30b7a7545d136606e83c/test_coverage)](https://codeclimate.com/github/kalsmic/SendITAPI_Challenge3/test_coverage)
+ [![Coverage Status](https://coveralls.io/repos/github/kalsmic/SendITAPI_Challenge3/badge.svg?branch=develop)](https://coveralls.io/github/kalsmic/SendITAPI_Challenge3?branch=develop)
  
 **prerequisites for using the project**
 - PostgresSQL - a powerful, open source object-relational database system.

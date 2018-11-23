@@ -28,14 +28,25 @@ def generate_header_with_token(id):
     return headers
 
 
-def test_admin_can_get_all_parcels_in_the_application(test_client):
-    """Only admin can get all parcels in the application"""
+def test_gets_all_parcels_in_the_application(test_client):
+    """Tests get all parcel delivery orders in the application"""
 
-    admin_gets_all_parcels = test_client.get('/api/v2/parcels', headers=generate_header_with_token(1))
-    assert admin_gets_all_parcels.status_code == 200
-    assert isinstance(json.loads(admin_gets_all_parcels.data.decode()), dict)
-    assert isinstance(json.loads(admin_gets_all_parcels.data.decode())['parcels'], list)
-    assert len(json.loads(admin_gets_all_parcels.data.decode())['parcels']) == 4
+    with test_client.get('/api/v2/parcels', headers=generate_header_with_token(1)) as admin_gets_all_parcels:
+        """Admin gets all parcels in the application"""
+
+        assert admin_gets_all_parcels.status_code == 200
+        assert isinstance(json.loads(admin_gets_all_parcels.data.decode()), dict)
+        assert isinstance(json.loads(admin_gets_all_parcels.data.decode())['parcels'], list)
+        assert len(json.loads(admin_gets_all_parcels.data.decode())['parcels']) == 4
+
+    with test_client.get('/api/v2/parcels', headers=generate_header_with_token(2)) as\
+            user_should_not_gets_all_parcels_in_the_application:
+        """User cannot access this route"""
+
+        assert user_should_not_gets_all_parcels_in_the_application.status_code == 401
+        assert json.loads(user_should_not_gets_all_parcels_in_the_application.data.decode()) == \
+               {"message": "You are not authorized to access this Resource"}
+
 
     # # user is not authorized to get all parcels in the application
     user_tries_to_gets_all_parcels = test_client.get('/api/v2/parcels', headers=generate_header_with_token(2))
@@ -59,7 +70,7 @@ def test_get_cancel_a_parcel_with_invalid_parcel_id(test_client):
         """When an id that is not of type int is provided
         Then system returns an HTTP Error code of 400"""
         assert parcelId_not_an_integer.status_code == 400
-        assert parcelId_not_an_integer.status_code == 400
+        assert json.loads(parcelId_not_an_integer.data.decode()) == {"message":"Bad Request"}
 
 
 def test_cancel_a_parcel_delivery_order_with_valid_parcelId(test_client):
