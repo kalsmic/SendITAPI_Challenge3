@@ -28,7 +28,7 @@ def get_all_parcels():
     return jsonify({'parcels': parcels_obj.parcel_details()}), 200
 
 
-#
+
 @parcels_bp.route('/parcels/<parcelId>', methods=['GET'])
 @jwt_required
 @non_admin
@@ -90,18 +90,16 @@ def add_a_parcel_order():
     try:
         item = parcelDict['item']
         source_address = parcelDict['source_address']
-        # pick_up_date = parcelDict['pick_up_date']
+
         destination_address = parcelDict['destination_address']
     except KeyError:
         return jsonify({"message": "Bad format input"}), 422
 
     # add new parcel order
 
-    result = parcels_obj.insert_a_parcel(item, source_address,
-                                          # pick_up_date,
-                                          destination_address, owner_id=get_current_user_id())
-    # result = parcels_obj.insert__a_parcel(item=item, source_address=source_address, pick_up_date=pick_up_date,
-    #                                       # destination_address=destination_address, owner_id=get_current_user_id())
+    result = parcels_obj.insert__a_parcel(item=item, source_address=source_address,destination_address=destination_address,
+                                          owner_id=get_current_user_id())
+
 
     return jsonify({"parcel": 'Parcel Created Successfully'}), 201
 

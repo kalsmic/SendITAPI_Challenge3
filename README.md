@@ -2,7 +2,7 @@
 SendIT is a courier service that helps users deliver parcels to different destinations. SendIT provides courier quotes based on weight categories.
 
 
-[![Build Status](https://travis-ci.org/kalsmic/SendITAPI_Challenge3.svg?branch=master)](https://travis-ci.org/kalsmic/SendITAPI_Challenge3)
+[![Build Status](https://travis-ci.org/kalsmic/SendITAPI_Challenge3.svg?branch=develop)](https://travis-ci.org/kalsmic/SendITAPI_Challenge3)
 [![Maintainability](https://api.codeclimate.com/v1/badges/30b7a7545d136606e83c/maintainability)](https://codeclimate.com/github/kalsmic/SendITAPI_Challenge3/maintainability)
 
 [![Test Coverage](https://api.codeclimate.com/v1/badges/30b7a7545d136606e83c/test_coverage)](https://codeclimate.com/github/kalsmic/SendITAPI_Challenge3/test_coverage)
