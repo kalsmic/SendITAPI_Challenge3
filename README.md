@@ -1,6 +1,12 @@
 # SendIT API
 SendIT is a courier service that helps users deliver parcels to different destinations. SendIT provides courier quotes based on weight categories.
 
+**prerequisites for using the project**
+- PostgresSQL - a powerful, open source object-relational database system.
+- Python -  an interpreted high-level programming language for general-purpose programming.
+- Postman - a tool used to send requests and receive responses through our REST API
+ 
+
 
 **SENDIT API ENDPOINTS**
 
