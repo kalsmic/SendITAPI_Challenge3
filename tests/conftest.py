@@ -21,7 +21,7 @@ def test_client():
     context.push()
 
     yield test_client
-    db.empty_tables()
+    # db.empty_tables()
 
 
 

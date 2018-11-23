@@ -28,7 +28,7 @@ def get_all_parcels():
     return jsonify({'parcels': parcels_obj.parcel_details()}), 200
 
 
-#
+
 @parcels_bp.route('/parcels/<parcelId>', methods=['GET'])
 @jwt_required
 @non_admin
@@ -51,7 +51,7 @@ def get_a_parcel(parcelId):
 
     # returns parcel with valid parcel id
     if parcels_obj.connect.cursor.rowcount > 0:
-        parcel_order = parcels_obj.connect.cur.fetchone()
+        parcel_order = parcels_obj.connect.fetchone()
 
         return jsonify({'parcel': parcel_order}), 200
     return jsonify({'message': "Parcel delivery order does not exist"}), 400
@@ -90,6 +90,7 @@ def add_a_parcel_order():
     try:
         item = parcelDict['item']
         source_address = parcelDict['source_address']
+
         destination_address = parcelDict['destination_address']
     except KeyError:
         return jsonify({"message": "Bad format input"}), 422
@@ -98,6 +99,7 @@ def add_a_parcel_order():
 
     result = parcels_obj.insert__a_parcel(item=item, source_address=source_address,destination_address=destination_address,
                                           owner_id=get_current_user_id())
+
 
     return jsonify({"parcel": 'Parcel Created Successfully'}), 201
 
@@ -120,7 +122,7 @@ def cancel_a_delivery_order(parcelId):
 
     owner_id = get_current_user_id()
 
-    return parcels_obj.cancel_a_parcel(parcelId, owner_id, 'Cancelled')
+    return parcels_obj.cancel_a_parcel(parcelId, owner_id)
 
 
 @parcels_bp.route('/parcels/<parcelId>/status', methods=['PUT'])
