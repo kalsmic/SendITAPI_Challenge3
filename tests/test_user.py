@@ -76,15 +76,22 @@ def test_user_login_(test_client):
     with test_client.post('/api/v2/auth/login', data=json.dumps({"username": "admin", "password": "ajmin"}),
                           headers=headers) as  login_user_with_wrong_credentials:
         assert login_user_with_wrong_credentials.status_code == 400
+        assert json.loads(login_user_with_wrong_credentials.data.decode()) == {"message": "Invalid credentials"}
 
+    # login admin user with correct credentials
     with test_client.post('/api/v2/auth/login', data=json.dumps({"username": "admin", "password": "admin"}),
                           headers=headers) as login_admin_user_with_correct_credentials:
         assert login_admin_user_with_correct_credentials.status_code == 200
+        assert 'access_token' in json.loads((login_admin_user_with_correct_credentials.data.decode()))
 
+
+    # login non admin user with correct credentials
     with test_client.post('/api/v2/auth/login', data=json.dumps({"username": "user1", "password": "user1"}),
                           headers=headers) as login_non_admin_user_with_correct_credentials:
         assert login_non_admin_user_with_correct_credentials.status_code == 200
+        assert 'access_token' in json.loads((login_non_admin_user_with_correct_credentials.data.decode()))
 
-    with test_client.post('/api/v2/auth/login', data=json.dumps({"usrname": "user2", "password": "password"}),
-                          headers=headers) as login_non_admin_user_with_correct_credentials:
-        assert login_non_admin_user_with_correct_credentials.status_code == 422
+    # submit login request without request data
+    with test_client.post('/api/v2/auth/login', headers=headers) as no_input_request_data:
+        assert no_input_request_data.status_code == 400
+        assert json.loads(no_input_request_data.data) == {"Message": "Bad format request"}

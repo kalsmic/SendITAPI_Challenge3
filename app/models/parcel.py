@@ -18,7 +18,7 @@ class ParcelOrder:
         parcels = self.connect.cursor.fetchall()
         return parcels
 
-    def insert__a_parcel(self, item, source_address, destination_address, owner_id):
+    def insert_a_parcel(self, item, source_address, destination_address, owner_id):
         # insert new parcel
 
         self.connect.cursor.execute("""INSERT INTO parcels(
@@ -26,7 +26,7 @@ class ParcelOrder:
         VALUES ('{}','{}','{}','{}','{}')
         """.format(item, source_address, source_address, destination_address, owner_id))
 
-    def cancel_a_parcel(self, parcel_id, owner_id, new_status):
+    def cancel_a_parcel(self, parcel_id, owner_id):
         """Cancels a parcel delivery order"""
 
         self.connect.cursor.execute("SELECT status,owner_id from parcels where parcel_id='{}'".format(parcel_id))
@@ -42,9 +42,12 @@ class ParcelOrder:
         if parcel['status'] != 'pending':
             return jsonify({'message': 'Cannot cancel a parcel with status ' + parcel['status']})
 
-        self.connect.cursor.execute("UPDATE parcels SET status ='{}' WHERE parcel_id='{}'"
-                                    .format(new_status, parcel_id))
-        return jsonify({'message': 'Parcel status updated'}), 200
+        self.connect.cursor.execute("UPDATE parcels SET status ='cancelled' WHERE parcel_id='{}'"
+                                    .format(parcel_id))
+        self.connect.cursor.execute("SELECT * FROM parcels WHERE parcel_id='{}'".format(parcel_id))
+        parcel = self.connect.cursor.fetchone()
+
+        return jsonify({'message': parcel, "message":"success"}), 200
 
     def update_parcel_status(self, parcelId, new_parcel_status):
         """Updates the status of the parcel delivery order"""
