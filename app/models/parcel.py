@@ -39,15 +39,15 @@ class ParcelOrder:
         if parcel['owner_id'] != owner_id:
             return jsonify({'message': "You're not allowed to perform this action"}), 405
 
-        if parcel['status'] != 'pending':
-            return jsonify({'message': 'Cannot cancel a parcel with status ' + parcel['status']})
+        if not parcel['status'] == 'pending':
+            return jsonify({"message": "Cannot cancel a parcel which is already {}".format(parcel['status'])}), 403
 
         self.connect.cursor.execute("UPDATE parcels SET status ='cancelled' WHERE parcel_id='{}'"
                                     .format(parcel_id))
         self.connect.cursor.execute("SELECT * FROM parcels WHERE parcel_id='{}'".format(parcel_id))
         parcel = self.connect.cursor.fetchone()
 
-        return jsonify({'message': parcel, "message":"success"}), 200
+        return jsonify({'parcel': parcel, "message": "success"}), 200
 
     def update_parcel_status(self, parcelId, new_parcel_status):
         """Updates the status of the parcel delivery order"""

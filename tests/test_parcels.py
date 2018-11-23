@@ -17,12 +17,8 @@ missing_data_response = {
 }
 
 
-def generate_header_with_token(role):
-    if role == "admin":
-        payload = {'user_id': 1}
-    elif role == 'user':
-        payload = {'user_id': 2}
-    admin_token = create_access_token(identity=payload)
+def generate_header_with_token(id):
+    admin_token = create_access_token(identity={'user_id': id})
     mimetype = 'application/json'
     headers = {
         'Content-Type': mimetype,
@@ -35,28 +31,31 @@ def generate_header_with_token(role):
 def test_admin_can_get_all_parcels_in_the_application(test_client):
     """Only admin can get all parcels in the application"""
 
-    admin_gets_all_parcels = test_client.get('/api/v2/parcels', headers=generate_header_with_token('admin'))
+    admin_gets_all_parcels = test_client.get('/api/v2/parcels', headers=generate_header_with_token(1))
     assert admin_gets_all_parcels.status_code == 200
     assert isinstance(json.loads(admin_gets_all_parcels.data.decode()), dict)
     assert isinstance(json.loads(admin_gets_all_parcels.data.decode())['parcels'], list)
     assert len(json.loads(admin_gets_all_parcels.data.decode())['parcels']) == 4
 
     # # user is not authorized to get all parcels in the application
-    user_tries_to_gets_all_parcels =  test_client.get('/api/v2/parcels', headers=generate_header_with_token('user'))
+    user_tries_to_gets_all_parcels = test_client.get('/api/v2/parcels', headers=generate_header_with_token(2))
     assert user_tries_to_gets_all_parcels.status_code == 401
-    assert json.loads(user_tries_to_gets_all_parcels.data.decode()) == {"message":"You are not authorized to access this Resource"}
+    assert json.loads(user_tries_to_gets_all_parcels.data.decode()) == {
+        "message": "You are not authorized to access this Resource"}
+
 
 #
 def test_get_cancel_a_parcel_with_invalid_parcel_id(test_client):
     # parcelId is an integer but does not exit
-    with test_client.put('/api/v2/parcels/78/cancel',headers=generate_header_with_token('user')) as parcelId_out_of_bounds:
+    with test_client.put('/api/v2/parcels/78/cancel', headers=generate_header_with_token(2)) as parcelId_out_of_bounds:
         "When id  is of type int but does not exist in the parcels" \
         "Then system returns an HTTP Error code of 400"""
         assert parcelId_out_of_bounds.status_code == 400
         assert json.loads(parcelId_out_of_bounds.data.decode()) == {'message': 'Parcel does not exist'}
-#
-#     # parcelId is not off type integer
-    with test_client.put('/api/v2/parcels/7uf/cancel',headers=generate_header_with_token('user')) as parcelId_not_an_integer:
+    #
+    #     # parcelId is not off type integer
+    with test_client.put('/api/v2/parcels/7uf/cancel',
+                         headers=generate_header_with_token(2)) as parcelId_not_an_integer:
         """When an id that is not of type int is provided
         Then system returns an HTTP Error code of 400"""
         assert parcelId_not_an_integer.status_code == 400
@@ -65,24 +64,44 @@ def test_get_cancel_a_parcel_with_invalid_parcel_id(test_client):
 
 def test_cancel_a_parcel_delivery_order_with_valid_parcelId(test_client):
     """Tests diffent Scenarios when Id is valid against the parcel's status"""
-    # Pending
-    with test_client.put('/api/v2/parcels/1/cancel',headers=generate_header_with_token('user')) as status_pending:
+
+    with test_client.put('/api/v2/parcels/98/cancel', headers=generate_header_with_token(2)) as \
+            user_cancels_parcel_which_does_not_exist:
+        """When user tries to cancel a parcel that does not belong to them """
+        assert user_cancels_parcel_which_does_not_exist.status_code == 400
+        assert json.loads(user_cancels_parcel_which_does_not_exist.data.decode()) == \
+               {"message": "Parcel does not exist"}
+
+    with test_client.put('/api/v2/parcels/1/cancel', headers=generate_header_with_token(3)) as \
+            user_cancels_parcel_for_another_user:
+        """When user tries to cancel a parcel that does not belong to them """
+        assert user_cancels_parcel_for_another_user.status_code == 405
+        assert json.loads(user_cancels_parcel_for_another_user.data.decode()) == \
+               {"message": "You're not allowed to perform this action"}
+
+    with test_client.put('/api/v2/parcels/3/cancel', headers=generate_header_with_token(2)) as \
+            user_cancels_parcel_which_is_not_pending:
+        """When user tries to cancel a parcel which is not pending """
+        assert user_cancels_parcel_which_is_not_pending.status_code == 403
+        assert json.loads(user_cancels_parcel_which_is_not_pending.data.decode()) == \
+               {"message": "Cannot cancel a parcel which is already delivered"}
+
+        # Pending
+    with test_client.put('/api/v2/parcels/1/cancel', headers=generate_header_with_token(2)) as status_pending:
         """When parcel has a status of pending
         Then asset is modified
         And System returns its details are returned
          """
         assert status_pending.status_code == 200
-        assert json.loads(status_pending.data.decode()) ==  {'message': {'destination_address': 'hoima',
-                                                                         'item': 'HMIS Forms',
-                                                                         'owner_id': 2,
-                                                                         'parcel_id': 1,
-                                                                         'present_location': 'Hoima',
-                                                                         'source_address': 'Kotido',
-                                                                         'status': 'cancelled'},
-                                                                          'message': 'success'
-                                                             }
-
-
+        assert json.loads(status_pending.data) == {'parcel': {'destination_address': 'hoima',
+                                                               'item': 'HMIS Forms',
+                                                               'owner_id': 2,
+                                                               'parcel_id': 1,
+                                                               'present_location': 'Hoima',
+                                                               'source_address': 'Kotido',
+                                                               'status': 'cancelled'},
+                                                   'message': 'success'
+                                                   }
 
 #
 #

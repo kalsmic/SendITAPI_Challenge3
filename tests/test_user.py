@@ -10,11 +10,11 @@ user_with_missing_data = {
 
 }
 user_with_complete_data = {
-    "username": "user2",
-    "firstname": "user2Fname",
-    "lastname": "user2Lname",
-    "email": "user2@gmail.com",
-    "password": "user1"
+    "username": "user3",
+    "firstname": "user3Fname",
+    "lastname": "user3Lname",
+    "email": "user3@gmail.com",
+    "password": "user2"
 
 }
 user_input_wrong_dictionary_key = {
