@@ -89,16 +89,16 @@ def add_a_parcel_order():
     # check if valid dictionary keys have been provided
     try:
         item = parcelDict['item']
-        pick_up_location = parcelDict['pick_up_location']
+        source_address = parcelDict['source_address']
         pick_up_date = parcelDict['pick_up_date']
-        destination = parcelDict['destination']
+        destination_address = parcelDict['destination_address']
     except KeyError:
         return jsonify({"message": "Bad format input"}), 422
 
     # add new parcel order
 
-    result = parcels_obj.insert__a_parcel(item=item, pick_up_location=pick_up_location, pick_up_date=pick_up_date,
-                                          destination=destination, owner_id=get_current_user_id())
+    result = parcels_obj.insert__a_parcel(item=item, source_address=source_address, pick_up_date=pick_up_date,
+                                          destination_address=destination_address, owner_id=get_current_user_id())
 
     return jsonify({"parcel": 'Parcel Created Successfully'}), 201
 
@@ -181,11 +181,23 @@ def update_parcel_present_location(parcelId):
         return jsonify({'Message': "Bad format request"}), 400
 
     new_parcel_present_location = json.loads(request.data)
-    new_parcel_present_location = new_parcel_present_location['presentLocation']
+
+    # Check if data contains valid dictionary keys
+    try:
+        new_parcel_present_location = new_parcel_present_location['presentLocation']
+    except KeyError:
+        return jsonify({"message": "Bad format input"}), 422
+
+    if isinstance(new_parcel_present_location,int):
+        return jsonify({"message": "Present location cannot be a number"}), 422
+
+
 
     # Check if input data is empty
     if not new_parcel_present_location:
         return jsonify({"message": "parcel's new present location cannot be empty"}), 400
+
+
 
     # Check if new present location is an integer
     if isinstance(new_parcel_present_location, int):

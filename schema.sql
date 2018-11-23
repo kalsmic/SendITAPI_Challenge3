@@ -20,7 +20,7 @@ create table if not exists parcels
 	item varchar(150),
 	source_address varchar(150),
 	destination_address varchar(150),
-	present_location varchar(50) NOT NULL,
+	present_location varchar(150) NOT NULL,
 	status varchar(10) default 'pending',
 	owner_id integer
 		constraint parcels_owner_id_fkey
