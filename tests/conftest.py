@@ -11,7 +11,8 @@ def test_client():
 
     app = create_app('TESTING')
     db = Database()
-    db.empty_tables()
+    db.create_tables()
+
     # db.cursor.execute(open("test_data.sql", "r").read())
 
     test_client = app.test_client()
@@ -19,8 +20,10 @@ def test_client():
     context = app.app_context()
     context.push()
 
-
     yield test_client
+    db.empty_tables()
+
+
 
     context.pop()
 

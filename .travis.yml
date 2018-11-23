@@ -19,7 +19,7 @@ before_script:
 
 script:
   - pytest
-  - py.test test/
+  - py.test tests/
   - py.test --cov=app
 
 after_success:
