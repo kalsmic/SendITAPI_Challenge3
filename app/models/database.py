@@ -19,7 +19,8 @@ class Database:
     def create_tables(self):
         """Creates tables in the database"""
         # tuple contains queries for setting up tables in the database
-        self.cursor.execute(open("/home/andela/Desktop/SentITAPI_Challenge3/schema.sql", "r").read())
+        self.cursor.execute(open("schema.sql", "r").read())
+
 
     def empty_tables(self):
        self.cursor.execute('DELETE FROM parcels')

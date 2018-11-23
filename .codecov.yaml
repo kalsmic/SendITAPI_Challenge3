@@ -1,0 +1,17 @@
+codecov:
+  token: 4435b21e-5221-4184-bf02-f0621d0afe19
+# Team Yaml
+coverage:
+  round: down
+  precision: 5
+
+# Repository Yaml
+coverage:
+  round: up
+  range: 0..10
+
+# Used in Codecov after updating
+coverage:
+  round: up
+  range: 0..10
+  precision: 5
