@@ -18,13 +18,13 @@ class ParcelOrder:
         parcels = self.connect.cursor.fetchall()
         return parcels
 
-    def insert__a_parcel(self, item, pick_up_location, pick_up_date, destination, owner_id):
+    def insert__a_parcel(self, item, source_address, destination_address, owner_id):
         # insert new parcel
 
         self.connect.cursor.execute("""INSERT INTO parcels(
-        item, pick_up_location,present_location, pick_up_date, destination, owner_id) 
-        VALUES ('{}','{}','{}','{}','{}','{}')
-        """.format(item, pick_up_location, pick_up_location, pick_up_date, destination, owner_id))
+        item, source_address,present_location,destination_address, owner_id) 
+        VALUES ('{}','{}','{}','{}','{}')
+        """.format(item, source_address, source_address, destination_address, owner_id))
 
     def cancel_a_parcel(self, parcel_id, owner_id, new_status):
         """Cancels a parcel delivery order"""
@@ -110,7 +110,7 @@ class ParcelOrder:
             return jsonify({"message": "Cannot update present location of  " + current_parcel_status
                                        + " parcel delivery order"}), 403
 
-        self.connect.cursor.execute("UPDATE parcels set destination='{}' WHERE parcel_id='{}'"
+        self.connect.cursor.execute("UPDATE parcels set destination_address='{}' WHERE parcel_id='{}'"
                                     .format(new_destination_address, parcelId))
 
         return jsonify({"message": "Parcel's destination address updated to " + new_destination_address}), 200

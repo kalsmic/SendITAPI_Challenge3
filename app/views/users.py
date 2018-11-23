@@ -74,6 +74,11 @@ def register():
         if not value:
             return jsonify({'Message': "{} cannot be empty".format(key)}), 400
 
+        if isinstance(value,int):
+            return jsonify({'Message': "{} cannot be a number".format(key)}), 400
+
+
+
     try:
         username = new_user['username']
         firstname = new_user['firstname']
