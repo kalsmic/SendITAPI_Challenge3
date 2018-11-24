@@ -1,4 +1,3 @@
-import os
 from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 
@@ -12,15 +11,7 @@ def create_app(config_name):
     app.config.from_object(app_config[config_name])
     jwt = JWTManager(app)
 
-    @app.route('/')
-    def index():
-        DIT = {
-            "SECRET_KEY": os.environ.get('SECRET_KEY'),
-            "DATABASE_URL": os.environ.get('DATABASE_URL'),
-            "APP_SETTINGS": os.environ.get('APP_SETTINGS')
-        }
-        return jsonify({"OS_VARIABLES": DIT})
-
+    # blue prints
     app.register_blueprint(users_bp)
     app.register_blueprint(parcels_bp)
 
