@@ -3,11 +3,14 @@ language: python
 python:
   - "3.6"
 
+sudo: required
+
+
 install:
-  - pip install -r requirements.txt
-  - pip install coveralls
-  - pip install codecov
-  - pip install pytest pytest-cov
+  - sudo pip install -r requirements.txt
+  - sudo pip install coveralls
+  - sudo pip install codecov
+  - sudo pip install pytest pytest-cov
 
 services:
   - postgresql

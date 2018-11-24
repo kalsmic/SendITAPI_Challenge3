@@ -1,9 +1,11 @@
-from flask import Flask
+
+from flask import Flask, jsonify
 from flask_jwt_extended import JWTManager
 
 from app.views.parcels import parcels_bp
 from app.views.users import users_bp
 from config import app_config
+
 
 
 def create_app(config_name):

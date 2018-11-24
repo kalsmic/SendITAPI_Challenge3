@@ -22,6 +22,7 @@ from app.models.user import User
 users_bp = Blueprint('users_bp', __name__, url_prefix='/api/v2')
 
 user_obj = User()
+import datetime
 
 @users_bp.route('/auth/register', methods=['POST'])
 def register():
@@ -94,7 +95,9 @@ def login():
         # create access token
         payload = {'user_id': verify_user['user_id']}
 
-        access_token = create_access_token(identity=payload)
+        # access_token = create_access_token(identity=payload)
+        expires = datetime.timedelta(days=365)
+        access_token = create_access_token(identity=payload, expires_delta=expires)
 
         return jsonify({"access_token": access_token}), 200
     # wrong user name or password
