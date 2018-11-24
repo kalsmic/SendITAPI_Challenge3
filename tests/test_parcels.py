@@ -194,5 +194,26 @@ def test_create_a_parcel_delivery_order(test_client):
             - and a message 'You are not authorized to access this Resource
         """
         assert admin_creates_a_parcel_delivery_order.status_code == 401
-        assert json.loads(admin_creates_a_parcel_delivery_order.data.decode()) ==\
+        assert json.loads(admin_creates_a_parcel_delivery_order.data.decode()) == \
                {"message": "You are not authorized to access this Resource"}
+
+    with test_client.post('/api/v2/parcels', headers=generate_header_with_token(2)) as \
+            user_submits_request_without_data:
+        """When  user sends a post request to create a parcel delivery order
+           And user has not submitted any data along with the request
+           Then System does not create the parcel
+           And system returns an HTTP response with  
+            - a status code of 400
+            - and a message 'Bad format request and what the system expects
+        """
+        assert user_submits_request_without_data.status_code == 400
+        assert json.loads(user_submits_request_without_data.data.decode()) == \
+               {
+                   "Expected": {
+                       "destination_address": "The Destination address",
+                       "item": "The Item",
+                       "source_address": "The source Address"
+                   },
+                   "Message": "Bad format request",
+                   "status": "Failed"
+               }
