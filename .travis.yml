@@ -16,7 +16,6 @@ before_script:
   - psql -c 'create database sendit_test;' -U postgres
 
 
-
 script:
   - pytest
   - py.test tests/

@@ -62,7 +62,7 @@ def add_a_parcel_order():
         201 HTTP error code  if Order is created Successfully
 
     """
-#     Expected request data format
+    #     Expected request data format
     expected = {
         "source_address": "The source Address",
         "destination_address": "The Destination address",
@@ -82,7 +82,8 @@ def add_a_parcel_order():
 
         destination_address = parcelDict['destination_address']
     except KeyError:
-        return jsonify({"message": "You have provided an invalid key name","Expected": expected, "status": "Failed"}), 422
+        return jsonify(
+            {"message": "You have provided an invalid key name", "Expected": expected, "status": "Failed"}), 422
 
     # Traverse through the input
     for key, value in parcelDict.items():
@@ -90,14 +91,15 @@ def add_a_parcel_order():
         # check if field is empty
         if not value:
             return jsonify({'message': "{} cannot be empty".format(key)}), 400
-
-
+        # check if field is an integer
+        if isinstance(value, int):
+            return jsonify({'message': "{} cannot be an Integer".format(key)}), 400
 
     # add new parcel order
 
-    return parcels_obj.insert__a_parcel(item=item, source_address=source_address,
-                                        destination_address=destination_address,
-                                        owner_id=get_current_user_id())
+    return parcels_obj.insert_a_parcel(item=item, source_address=source_address,
+                                       destination_address=destination_address,
+                                       owner_id=get_current_user_id())
 
 
 @parcels_bp.route('/parcels/<parcelId>/cancel', methods=['PUT'])

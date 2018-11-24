@@ -12,8 +12,7 @@ def test_client():
     app = create_app('TESTING')
     db = Database()
     db.create_tables()
-
-    # db.cursor.execute(open("test_data.sql", "r").read())
+    db.cursor.execute(open("test_data.sql", "r").read())
 
     test_client = app.test_client()
 
