@@ -1,7 +1,12 @@
 # parcel.py
 from flask import jsonify
 
-from app.helpers import get_current_user_id
+from app.helpers import (
+    get_current_user_id,
+    parcel_does_not_exist,
+    limit_access_to_resource_owner,
+    is_admin
+)
 from .database import Database
 
 
@@ -17,6 +22,36 @@ class ParcelOrder:
         self.connect.cursor.execute("SELECT * FROM parcels")
         parcels = self.connect.cursor.fetchall()
         return parcels
+
+    def get_a_parcel(self, parcelId):
+        """Queries database for a specific parcel by parcel Id """
+
+        # if is_admin():
+        self.connect.cursor.execute("""
+        SELECT item, source_address, destination_address, present_location, status, username, user_id
+        from parcels
+        right join users u on parcels.owner_id = u.user_id
+        where parcel_id = {}""".format(parcelId))
+        # else:
+        #     self.connect.cursor.execute("""
+        #     SELECT item, source_address, destination_address, present_location, status, username, user_id
+        #     from parcels
+        #     right join users u on parcels.owner_id = u.user_id
+        #     where parcel_id = {} AND owner_id={} """.format(parcelId,get_current_user_id()))
+        #
+
+        result = self.connect.cursor.fetchone()
+
+        if result is None:
+            return parcel_does_not_exist()
+
+        # if logged in user is not admin user
+        # check if parcel belongs to the user
+        if not is_admin() and get_current_user_id() != result['user_id']:
+            return jsonify(limit_access_to_resource_owner),403
+        #
+        #     return the result to the user
+        return jsonify({"status": "success", "parcel": result})
 
     def insert_a_parcel(self, item, source_address, destination_address, owner_id):
         # insert new parcel

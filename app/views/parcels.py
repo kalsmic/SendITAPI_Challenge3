@@ -10,10 +10,11 @@ from flask import (
 from flask_jwt_extended import jwt_required
 
 from app.helpers import (
-    get_current_user_id
+    get_current_user_id,
+    admin_required,
+    non_admin_required
 )
 from app.models.parcel import ParcelOrder
-from app.views.users import admin_required, non_admin
 
 parcels_bp = Blueprint('parcels_bp', __name__, url_prefix='/api/v2')
 parcels_obj = ParcelOrder()
@@ -28,10 +29,8 @@ def get_all_parcels():
     return jsonify({'parcels': parcels_obj.parcel_details()}), 200
 
 
-
 @parcels_bp.route('/parcels/<parcelId>', methods=['GET'])
 @jwt_required
-@non_admin
 def get_a_parcel(parcelId):
     """Parameter: int parcelId
     :returns:
@@ -45,21 +44,22 @@ def get_a_parcel(parcelId):
     except ValueError:
         return jsonify({"message": "Provide a valid parcel Id"}), 400
 
-    # Avoids returning the last item if parcel id of zero is given
-    """checks if parcel id exists"""
-    parcels_obj.connect.cursor.execute("SELECT * FROM parcels where parcel_id = '%s'", (parcelId,))
+    return parcels_obj.get_a_parcel(parcelId)
 
-    # returns parcel with valid parcel id
-    if parcels_obj.connect.cursor.rowcount > 0:
-        parcel_order = parcels_obj.connect.fetchone()
-
-        return jsonify({'parcel': parcel_order}), 200
-    return jsonify({'message': "Parcel delivery order does not exist"}), 400
+    # """checks if parcel id exists"""
+    # parcels_obj.connect.cursor.execute("SELECT * FROM parcels where parcel_id = '%s'", (parcelId,))
+    #
+    # # returns parcel with valid parcel id
+    # if parcels_obj.connect.cursor.rowcount > 0:
+    #     parcel_order = parcels_obj.connect.cursor.fetchone()
+    #
+    #     return jsonify({'parcel': parcel_order}), 200
+    # return jsonify({'message': "Parcel delivery order does not exist"}), 400
 
 
 @parcels_bp.route('/parcels', methods=['POST'])
 @jwt_required
-@non_admin
+@non_admin_required
 def add_a_parcel_order():
     """Create a parcel delivery order
     Expects parameters:
@@ -97,16 +97,16 @@ def add_a_parcel_order():
 
     # add new parcel order
 
-    result = parcels_obj.insert__a_parcel(item=item, source_address=source_address,destination_address=destination_address,
+    result = parcels_obj.insert__a_parcel(item=item, source_address=source_address,
+                                          destination_address=destination_address,
                                           owner_id=get_current_user_id())
-
 
     return jsonify({"parcel": 'Parcel Created Successfully'}), 201
 
 
 @parcels_bp.route('/parcels/<parcelId>/cancel', methods=['PUT'])
 @jwt_required
-@non_admin
+@non_admin_required
 def cancel_a_delivery_order(parcelId):
     """Parameter: integer parcelId
        Returns: 400 if parcelId is not  of type int
@@ -189,16 +189,12 @@ def update_parcel_present_location(parcelId):
     except KeyError:
         return jsonify({"message": "Bad format input"}), 422
 
-    if isinstance(new_parcel_present_location,int):
+    if isinstance(new_parcel_present_location, int):
         return jsonify({"message": "Present location cannot be a number"}), 422
-
-
 
     # Check if input data is empty
     if not new_parcel_present_location:
         return jsonify({"message": "parcel's new present location cannot be empty"}), 400
-
-
 
     # Check if new present location is an integer
     if isinstance(new_parcel_present_location, int):
@@ -210,7 +206,7 @@ def update_parcel_present_location(parcelId):
 
 @parcels_bp.route('/parcels/<parcelId>/destination', methods=['PUT'])
 @jwt_required
-@non_admin
+@non_admin_required
 def update_present_parcel_destination(parcelId):
     """Parameter: integer parcelId
        Returns: 400 if parcelId is not  of type int

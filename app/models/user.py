@@ -1,21 +1,12 @@
-import random
-import string
-
 from flask import jsonify
 from werkzeug.security import (
     generate_password_hash,
     check_password_hash
 )
-from flask_jwt_extended import get_jwt_identity,verify_jwt_in_request
 
+from app.helpers import get_current_user_id
 from .database import Database
 
-
-
-def get_current_user_id():
-    verify_jwt_in_request(),
-    user_id = get_jwt_identity()
-    return user_id['user_id']
 
 class User:
     role = 'user'
@@ -40,7 +31,7 @@ class User:
         # self.connect.cur.execute("SELECT userId,username,password,is_admin FROM users where username='{}'"
         #                          .format(username))
         self.connect.cursor.execute("SELECT * FROM users where username='{}'"
-                                 .format(username))
+                                    .format(username))
 
         user = self.connect.cursor.fetchone()
         # If username exists and has provided a valid password
@@ -48,9 +39,7 @@ class User:
             return {'status': 'success', "is_admin": user['is_admin'], 'user_id': user['user_id']}
         return {'status': 'Failed'}
 
-
-
-    def get_all_parcels_for_a_specific_user(self,userId):
+    def get_all_parcels_for_a_specific_user(self, userId):
         "Gets parcels for a specific user"
         owner_id = get_current_user_id()
 
@@ -67,16 +56,12 @@ class User:
             return jsonify({"parcels": parcels}), 200
 
         if not is_admin['is_admin'] and owner_id != userId:
-            return jsonify({"message": "You can only access your parcel's"}),403
+            return jsonify({"message": "You can only access your parcel's"}), 403
 
-        self.connect.cursor.execute("SELECT * from parcels where owner_id='{}' AND owner_id='{}'".format(userId,owner_id))
+        self.connect.cursor.execute(
+            "SELECT * from parcels where owner_id='{}' AND owner_id='{}'".format(userId, owner_id))
 
-        parcels=self.connect.cursor.fetchall()
+        parcels = self.connect.cursor.fetchall()
         if parcels:
-            return jsonify({"parcels":parcels}),200
-        return jsonify({"message":"No parcels place yet"}),404
-
-
-
-
-
+            return jsonify({"parcels": parcels}), 200
+        return jsonify({"message": "No parcels place yet"}), 404

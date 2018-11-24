@@ -23,37 +23,6 @@ users_bp = Blueprint('users_bp', __name__, url_prefix='/api/v2')
 
 user_obj = User()
 
-
-def admin_required(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        verify_jwt_in_request()
-        user_id = get_jwt_identity()['user_id']
-        user_obj.connect.cursor.execute("SELECT is_admin FROM users where user_id={}".format(user_id))
-        is_admin = user_obj.connect.cursor.fetchone()
-
-        if is_admin["is_admin"]:
-            return func(*args, **kwargs)
-        return jsonify({"message": "You are not authorized to access this Resource"}), 401
-
-    return wrapper
-
-
-def non_admin(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        verify_jwt_in_request()
-        user_id = get_jwt_identity()['user_id']
-        user_obj.connect.cursor.execute("SELECT is_admin FROM users where user_id={}".format(user_id))
-        is_admin = user_obj.connect.cursor.fetchone()
-
-        if not is_admin["is_admin"]:
-            return func(*args, **kwargs)
-        return jsonify({"message": "Unauthorized Access"}), 401
-
-    return wrapper
-
-
 @users_bp.route('/auth/register', methods=['POST'])
 def register():
     """Expects Parameters:
@@ -129,7 +98,7 @@ def login():
 
         return jsonify({"access_token": access_token}), 200
     # wrong user name or password
-    return jsonify({"message": "Invalid credentials"}), 400
+    return jsonify({"message": "Invalid credentials"}), 401
 
 
 @users_bp.route('/<userId>/parcels', methods=['GET'])
