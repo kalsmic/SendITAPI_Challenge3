@@ -17,6 +17,7 @@ class Database:
         except (Exception, psycopg2.Error) as e:
             print(e)
 
+
     def create_tables(self):
         """Creates tables in the database"""
         # tuple contains queries for setting up tables in the database
