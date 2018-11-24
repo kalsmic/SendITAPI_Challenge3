@@ -10,7 +10,6 @@ class Database:
 
     def __init__(self):
         try:
-            # DATABASE_URL = "postgres://postgres:postgres@localhost:5432/sendit_test"
             self.conn = psycopg2.connect(environ.get('DATABASE_URL'))
             self.conn.autocommit = True
             self.cursor = self.conn.cursor(cursor_factory=RealDictCursor)
