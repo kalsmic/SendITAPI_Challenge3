@@ -60,6 +60,9 @@ class ParcelOrder:
         item, source_address,present_location,destination_address, owner_id) 
         VALUES ('{}','{}','{}','{}','{}')
         """.format(item, source_address, source_address, destination_address, owner_id))
+        if self.connect.cursor.rowcount == 1:
+            return jsonify({"parcel": 'Parcel Created Successfully'}), 201
+        return jsonify({"parcel": 'Parcel Created error'}), 500
 
     def cancel_a_parcel(self, parcel_id, owner_id):
         """Cancels a parcel delivery order"""

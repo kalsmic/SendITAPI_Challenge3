@@ -6,7 +6,7 @@ missing_data = {
     "destination_address": "d",
     "Item": "fe"
 }
-complete_data = {
+complete_new_parcel_data = {
     "source_address": "Jinja",
     "destination_address": "Mukono",
     "Item": "Text Books",
@@ -149,9 +149,9 @@ def test_get_a_parcel_delivery_order(test_client):
 
     with test_client.get('/api/v2/parcels/4', headers=generate_header_with_token(3)) as \
             non_admin_user_gets_a_parcels_which_exists_and_belongs_to_them:
-        """When a non admin user sends a request to get a parcel which does not belong to them,
-        The system returns a 403 HTTP status code
-        And an error message 'You can only access resources that belong to you'"""
+        """When a non admin user sends a request to get a parcel which exists and belongs to them,
+        The system returns a 200 HTTP status code
+        And the details of the parcel for the specified parcel Id'"""
 
         assert non_admin_user_gets_a_parcels_which_exists_and_belongs_to_them.status_code == 200
         assert json.loads(non_admin_user_gets_a_parcels_which_exists_and_belongs_to_them.data.decode()) == \
@@ -167,8 +167,8 @@ def test_get_a_parcel_delivery_order(test_client):
         with test_client.get('/api/v2/parcels/4', headers=generate_header_with_token(1)) as \
                 admin_user_gets_a_parcels_which_exists:
             """When a non admin user sends a request to get a parcel which does not belong to them,
-            The system returns a 403 HTTP status code
-            And an error message 'You can only access resources that belong to you'"""
+            The system returns a 200 HTTP status code
+            And an the details of the parcel for the specified Parcel Id'"""
 
             assert admin_user_gets_a_parcels_which_exists.status_code == 200
             assert json.loads(admin_user_gets_a_parcels_which_exists.data.decode()) == \
@@ -181,4 +181,18 @@ def test_get_a_parcel_delivery_order(test_client):
                                'username': 'user2'},
                     'status': 'success'}
 
-  
+
+def test_create_a_parcel_delivery_order(test_client):
+    """Tests for the different scenarios of user creating a parcel delivery order"""
+
+    with test_client.post('/api/v2/parcels', headers=generate_header_with_token(1),
+                          data=json.dumps(complete_new_parcel_data)) as admin_creates_a_parcel_delivery_order:
+        """When admin user sends a post request to create a parcel delivery order
+           Then system does not create the parcel delivery order 
+           And system returns an HTTP response with  
+            - a status code of 1
+            - and a message 'You are not authorized to access this Resource
+        """
+        assert admin_creates_a_parcel_delivery_order.status_code == 401
+        assert json.loads(admin_creates_a_parcel_delivery_order.data.decode()) ==\
+               {"message": "You are not authorized to access this Resource"}
