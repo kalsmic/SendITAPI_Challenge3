@@ -61,11 +61,17 @@ def add_a_parcel_order():
         400 error code if required parameter is not provided
         201 HTTP error code  if Order is created Successfully
 
-#     """
+    """
+#     Expected request data format
+    expected = {
+        "source_address": "The source Address",
+        "destination_address": "The Destination address",
+        "item": "The Item"
+    }
 
     # Check if request data is provided
     if not request.data:
-        return jsonify({'Message': "Bad format request"}), 400
+        return jsonify({'Message': "Bad format request", "Expected": expected, "status": "Failed"}), 400
 
     parcelDict = json.loads(request.data)
 
@@ -88,9 +94,8 @@ def add_a_parcel_order():
     # add new parcel order
 
     return parcels_obj.insert__a_parcel(item=item, source_address=source_address,
-                                          destination_address=destination_address,
-                                          owner_id=get_current_user_id())
-
+                                        destination_address=destination_address,
+                                        owner_id=get_current_user_id())
 
 
 @parcels_bp.route('/parcels/<parcelId>/cancel', methods=['PUT'])
