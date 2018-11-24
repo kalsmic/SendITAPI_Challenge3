@@ -39,14 +39,13 @@ def test_gets_all_parcels_in_the_application(test_client):
         assert isinstance(json.loads(admin_gets_all_parcels.data.decode())['parcels'], list)
         assert len(json.loads(admin_gets_all_parcels.data.decode())['parcels']) == 4
 
-    with test_client.get('/api/v2/parcels', headers=generate_header_with_token(2)) as\
+    with test_client.get('/api/v2/parcels', headers=generate_header_with_token(2)) as \
             user_should_not_gets_all_parcels_in_the_application:
         """User cannot access this route"""
 
         assert user_should_not_gets_all_parcels_in_the_application.status_code == 401
         assert json.loads(user_should_not_gets_all_parcels_in_the_application.data.decode()) == \
                {"message": "You are not authorized to access this Resource"}
-
 
     # # user is not authorized to get all parcels in the application
     user_tries_to_gets_all_parcels = test_client.get('/api/v2/parcels', headers=generate_header_with_token(2))
@@ -70,7 +69,7 @@ def test_get_cancel_a_parcel_with_invalid_parcel_id(test_client):
         """When an id that is not of type int is provided
         Then system returns an HTTP Error code of 400"""
         assert parcelId_not_an_integer.status_code == 400
-        assert json.loads(parcelId_not_an_integer.data.decode()) == {"message":"Bad Request"}
+        assert json.loads(parcelId_not_an_integer.data.decode()) == {"message": "Bad Request"}
 
 
 def test_cancel_a_parcel_delivery_order_with_valid_parcelId(test_client):
@@ -105,94 +104,81 @@ def test_cancel_a_parcel_delivery_order_with_valid_parcelId(test_client):
          """
         assert status_pending.status_code == 200
         assert json.loads(status_pending.data) == {'parcel': {'destination_address': 'hoima',
-                                                               'item': 'HMIS Forms',
-                                                               'owner_id': 2,
-                                                               'parcel_id': 1,
-                                                               'present_location': 'Hoima',
-                                                               'source_address': 'Kotido',
-                                                               'status': 'cancelled'},
+                                                              'item': 'HMIS Forms',
+                                                              'owner_id': 2,
+                                                              'parcel_id': 1,
+                                                              'present_location': 'Hoima',
+                                                              'source_address': 'Kotido',
+                                                              'status': 'cancelled'},
                                                    'message': 'success'
                                                    }
 
-#
-#
-#     #         In transit
-#     with test_client.put('/api/v2/parcels/3/cancel',headers=generate_header_with_token('user')) as status_in_transit:
-#         """When parcel has a status of In Transit
-#         Then asset is not modified"""
-#         assert status_in_transit.status_code == 400
-#
-#     #          Delivered
-#     with test_client.put('/api/v2/parcels/4/cancel',headers=generate_header_with_token('user')) as status_delivered:
-#         """When parcel has a status of Delivered
-#              Then asset is not modified"""
-#         assert status_delivered.status_code == 400
-#
-#
-# def test_get_parcels_for_a_user_with_invalid_user_id(test_client):
-#     # """ Given an API Consumer
-#     # When I submit a GET request to /users/<userId>/parcels
-#     # And no parcel orders exist for the given user id
-#     # Then the system returns an HTTP status code of 404
-#     # And a JSON representation of the error 'Not found' """
-#
-#     with test_client.get('/api/v2/users/er9/parcels',headers=generate_header_with_token('user')) as userId_Type_Error:
-#         assert userId_Type_Error.status_code == 404
-#
-#     with test_client.get('/api/v2/users/9/parcels',headers=generate_header_with_token('user')) as userId_does_not_exist:
-#         assert userId_does_not_exist.status_code == 404
-#
-#
-# def test_get_parcels_for_a_valid_user_who_has_no_orders(test_client):
-#     """When no orders exist for the specified userId"""
-#     response = test_client.get('/api/v2/users/3/parcels',headers=generate_header_with_token('user'))
-#     assert response.status_code == 404
-#
-#
-# def test_create_a_parcel_delivery(test_client):
-#     mimetype = 'application/json'
-#     headers = {
-#         'Content-Type': mimetype,
-#         'Accept': mimetype
-#     }
-#
-#     with test_client.post('/api/v2/parcels', data=json.dumps(missing_data),headers=generate_header_with_token('user')) as \
-#             create_order_with_missing_data:
-#         assert create_order_with_missing_data.content_type == mimetype
-#         assert create_order_with_missing_data.status_code == 400
-#
-#     with test_client.post('/api/v2/parcels', data=json.dumps(complete_data), headers=generate_header_with_token('user')) as \
-#             create_order_with_complete_data:
-#         assert create_order_with_complete_data.content_type == mimetype
-#         assert create_order_with_complete_data.status_code == 422
-#         assert json.loads(create_order_with_complete_data.data.decode()) ==  {'message': 'Bad format input'}
-#
-#
-#
-# #
-# # def test_get_a_parcel_with_invalid_parcel_id(test_client):
-# #     """When an invalid parcel Id is provided"""
-# #
-# #     with test_client.get('/api/v2/parcels/0',headers=generate_header_with_token('user')) as parcelId_out_of_bounds:
-# #         """Id is a number and does not exist in the parcels
-# #            Then system returns the specific parcel and a status code of 400"""
-# #         assert parcelId_out_of_bounds.status_code == 400
-# #
-# #     with test_client.get('/api/v2/parcels/7uf',headers=generate_header_with_token('user')) as parcelId_not_an_integer:
-# #         """parcelId is not a number
-# #                    Then system returns the specific parcel and a status code of 400"""
-# #         assert parcelId_not_an_integer.status_code == 400
-# #
-# #
-# # def test_get_a_parcel_with_parcelId_which_exists_and_is_valid(test_client):
-# #     """Given a valid parcel Id
-# #         Then system returns the specific parcel and a status code of 200"""
-# #     response = test_client.get('/api/v2/parcels/1',headers=generate_header_with_token('user'))
-# #     assert response.status_code == 400
-# #
-# # def test_get_user_updates_status_of_a_parcel(test_client):
-# #     """Given a valid parcel Id
-# #         Then system returns the specific parcel and a status code of 200"""
-# #     response = test_client.get('/api/v2/parcels/1/status',headers=generate_header_with_token('user'))
-# #     assert response.status_code == 405
-# #     assert json.loads(response.data.decode()) == {"message": "You are not authorized to access this Resource"}
+
+def test_get_a_parcel_delivery_order(test_client):
+    """Tests scenarios for get a specific delivery order endpoint"""
+
+    with test_client.get('/api/v2/parcels/dfd',
+                         headers=generate_header_with_token(1)) as get_parcel_with_non_numeric_parcel_id:
+        """When a non numeric is provided as a parameter,
+        The system returns a 400 HTTP status code 
+        And an error message 'Provide a valid parcel Id'"""
+
+        assert get_parcel_with_non_numeric_parcel_id.status_code == 400
+        assert json.loads(get_parcel_with_non_numeric_parcel_id.data.decode()) == {
+            "message": "Provide a valid parcel Id"}
+
+    with test_client.get('/api/v2/parcels/93', headers=generate_header_with_token(2)) as \
+            user_gets_a_parcels_with_a_parcel_id_which_does_not_exist:
+        """When a non numeric is provided as a parameter,
+        The system returns a 400 HTTP status code 
+        And an error message 'Provide a valid parcel Id'"""
+
+        assert user_gets_a_parcels_with_a_parcel_id_which_does_not_exist.status_code == 400
+        assert json.loads(user_gets_a_parcels_with_a_parcel_id_which_does_not_exist.data.decode()) == \
+               {'message': 'Parcel does not exist'}
+
+    with test_client.get('/api/v2/parcels/1', headers=generate_header_with_token(3)) as \
+            non_admin_user_gets_a_parcels_which_does_not_belong_to_them:
+        """When a non admin user sends a request to get a parcel which does not belong to them,
+        The system returns a 403 HTTP status code 
+        And an error message 'You can only access resources that belong to you'"""
+
+        assert non_admin_user_gets_a_parcels_which_does_not_belong_to_them.status_code == 403
+        assert json.loads(non_admin_user_gets_a_parcels_which_does_not_belong_to_them.data.decode()) == \
+               {"message": "You can only access resources that belong to you!"}
+
+    with test_client.get('/api/v2/parcels/4', headers=generate_header_with_token(3)) as \
+            non_admin_user_gets_a_parcels_which_exists_and_belongs_to_them:
+        """When a non admin user sends a request to get a parcel which does not belong to them,
+        The system returns a 403 HTTP status code
+        And an error message 'You can only access resources that belong to you'"""
+
+        assert non_admin_user_gets_a_parcels_which_exists_and_belongs_to_them.status_code == 200
+        assert json.loads(non_admin_user_gets_a_parcels_which_exists_and_belongs_to_them.data.decode()) == \
+               {'parcel': {'destination_address': 'Ntinda',
+                           'item': 'Text Books',
+                           'present_location': 'Naalya',
+                           'source_address': 'Naalya',
+                           'status': 'cancelled',
+                           'user_id': 3,
+                           'username': 'user2'},
+                'status': 'success'}
+
+        with test_client.get('/api/v2/parcels/4', headers=generate_header_with_token(1)) as \
+                admin_user_gets_a_parcels_which_exists:
+            """When a non admin user sends a request to get a parcel which does not belong to them,
+            The system returns a 403 HTTP status code
+            And an error message 'You can only access resources that belong to you'"""
+
+            assert admin_user_gets_a_parcels_which_exists.status_code == 200
+            assert json.loads(admin_user_gets_a_parcels_which_exists.data.decode()) == \
+                   {'parcel': {'destination_address': 'Ntinda',
+                               'item': 'Text Books',
+                               'present_location': 'Naalya',
+                               'source_address': 'Naalya',
+                               'status': 'cancelled',
+                               'user_id': 3,
+                               'username': 'user2'},
+                    'status': 'success'}
+
+  

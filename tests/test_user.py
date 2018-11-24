@@ -75,7 +75,7 @@ def test_user_login_(test_client):
     # Tests login a user with wrong credentials
     with test_client.post('/api/v2/auth/login', data=json.dumps({"username": "admin", "password": "ajmin"}),
                           headers=headers) as  login_user_with_wrong_credentials:
-        assert login_user_with_wrong_credentials.status_code == 400
+        assert login_user_with_wrong_credentials.status_code == 401
         assert json.loads(login_user_with_wrong_credentials.data.decode()) == {"message": "Invalid credentials"}
 
     # login admin user with correct credentials
