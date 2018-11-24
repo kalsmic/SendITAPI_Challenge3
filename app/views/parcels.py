@@ -75,13 +75,6 @@ def add_a_parcel_order():
 
     parcelDict = json.loads(request.data)
 
-    # Traverse through the input
-    for key, value in parcelDict.items():
-
-        # check if field is empty
-        if not value:
-            return jsonify({'message': "{} cannot be empty".format(key)}), 400
-
     # check if valid dictionary keys have been provided
     try:
         item = parcelDict['item']
@@ -89,7 +82,16 @@ def add_a_parcel_order():
 
         destination_address = parcelDict['destination_address']
     except KeyError:
-        return jsonify({"message": "Bad format input"}), 422
+        return jsonify({"message": "You have provided an invalid key name","Expected": expected, "status": "Failed"}), 422
+
+    # Traverse through the input
+    for key, value in parcelDict.items():
+
+        # check if field is empty
+        if not value:
+            return jsonify({'message': "{} cannot be empty".format(key)}), 400
+
+
 
     # add new parcel order
 
