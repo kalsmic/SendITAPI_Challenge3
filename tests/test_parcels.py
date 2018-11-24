@@ -1,9 +1,31 @@
-# tests/test_parcels.py
-"""Module contains tests for endpoints related to the parcel resource"""
-
 from flask import json
+from flask_jwt_extended import create_access_token
 
-from .test_base import *
+missing_data = {
+    "source_address": "",
+    "destination_address": "d",
+    "Item": "fe"
+}
+complete_new_parcel_data = {
+    "source_address": "Jinja",
+    "destination_address": "Mukono",
+    "Item": "Text Books",
+
+}
+missing_data_response = {
+    "message": "source_address cannot be empty"
+}
+
+
+def generate_header_with_token(id):
+    admin_token = create_access_token(identity={'user_id': id})
+    mimetype = 'application/json'
+    headers = {
+        'Content-Type': mimetype,
+        'Authorization': 'Bearer ' + admin_token
+    }
+
+    return headers
 
 
 def test_gets_all_parcels_in_the_application(test_client):
@@ -193,25 +215,5 @@ def test_create_a_parcel_delivery_order(test_client):
                        "source_address": "The source Address"
                    },
                    "Message": "Bad format request",
-                   "status": "Failed"
-               }
-    with test_client.post('/api/v2/parcels',data=json.dumps(new_parcel_data_with_wrong_key),
-                          headers=generate_header_with_token(2)) as user_submits_request_with_wrong_keys:
-        """When  user sends a post request to create a parcel delivery order
-           And user has submitted request data with unexpected keys
-           Then System does not create the parcel
-           And system returns an HTTP response with  
-            - a status code of 422
-            - and a message 'Bad format request and what the system expects
-        """
-        assert user_submits_request_with_wrong_keys.status_code == 422
-        assert json.loads(user_submits_request_with_wrong_keys.data.decode()) == \
-               {
-                   "Expected": {
-                       "destination_address": "The Destination address",
-                       "item": "The Item",
-                       "source_address": "The source Address"
-                   },
-                   "message": "You have provided an invalid key name",
                    "status": "Failed"
                }
